@@ -1,4 +1,4 @@
---use exams_cmmg;
+use exams_cmmg;
 
 create or alter view vw_dados_exportacao as       
 with    cte_participante_avaliacao as (      
