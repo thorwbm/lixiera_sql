@@ -1,4 +1,4 @@
-use exams_cmmg;
+--use exams_cmmg;
 
 create or alter view vw_dados_exportacao as       
 with    cte_participante_avaliacao as (      
@@ -50,7 +50,7 @@ WHERE exa.id = 18
 USE exams_cmmg
 
 DECLARE @JSON_AUX VARCHAR(MAX)
-SET @JSON_AUX = '{"hierarchy": {"unity":{"value":"CMMG","name":"Faculdade Ciências Médicas"},"discipline":{"value":"99999","name":"Não informado"},"grade":{"value":"999999","name":"Não informado"},"curso":{"value":"999999","name":"Não informado"}}}'
+SET @JSON_AUX = '{"hierarchy": {"unity":{"value":"CMMG","name":"Faculdade CiÃªncias MÃ©dicas"},"discipline":{"value":"99999","name":"NÃ£o informado"},"grade":{"value":"999999","name":"NÃ£o informado"},"curso":{"value":"999999","name":"NÃ£o informado"}}}'
   
        UPDATE exa SET exa.EXTRA = JSON_MODIFY(
                                       JSON_MODIFY(
