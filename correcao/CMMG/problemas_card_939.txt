@@ -1,0 +1,21 @@
+	turma de um periodo apontando para prova de outro periodo 
+    ex - 
+    15/06 tarde: 4º período
+    PROVA APIC do 4º período de Medicina - 1º/2020
+    Turma M070A02A201T, M070A02B201T, M070A02C201T, M070A02D201T
+
+    Alunos que possuem registros em varias provas 
+	ex -
+    52447	ALICE CESÁRIO DA SILVA	    1180.000255	M071S03A201T  3º período	APIC do 3º período de Medicina - 1º/2020	medicina
+    52447	ALICE CESÁRIO DA SILVA	    1180.000255	M070A02D201T  4º período	APIC do 4º período de Medicina - 1º/2020	medicina
+    52447	ALICE CESÁRIO DA SILVA	    1180.000255	M069A03B201T  5º período	APIC do 5º período de Medicina - 1º/2020	medicina
+    52447	ALICE CESÁRIO DA SILVA	    1180.000255	M069A03C201T  5º período	APIC do 5º período de Medicina - 1º/2020	medicina
+                                                                  
+    36920	LETÍCIA FERREIRA DE SOUZA	1180.000581	M070A02B201T  4º período	APIC do 4º período de Medicina - 1º/2020	medicina
+    36920	LETÍCIA FERREIRA DE SOUZA	1180.000581	M070A02C201T  4º período	APIC do 4º período de Medicina - 1º/2020	medicina
+    36920	LETÍCIA FERREIRA DE SOUZA	1180.000581	M071S03B201T  3º período	APIC do 3º período de Medicina - 1º/2020	medicina
+    36920	LETÍCIA FERREIRA DE SOUZA	1180.000581	M072S02A201T  2º período	APIC do 2º período de Medicina - 1º/2020	medicina
+    36920	LETÍCIA FERREIRA DE SOUZA	1180.000581	M073S01D201T  1º período	APIC do 1º período de Medicina - 1º/2020	medicina
+	
+	alunos com mais de uma turma, 
+	o que registrar no campo extra da tabela auth_user

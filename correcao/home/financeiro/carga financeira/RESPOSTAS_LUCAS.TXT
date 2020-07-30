@@ -1,0 +1,19 @@
+CARGA FINANCEIRA
+	- CARGA CONTRATO
+        - COMO PROCEDER QUANDO O ALUNO TIVER MATRICULA/REMATRICULA EM UM CURRICULO QUE ELE NAO POSSUI OU ESTA ATIVO?
+            Não deve ser um padrão nos que vamos gerar as novas tabelas, logo não podemos deixar isso acontecer
+		- QUANDO O ALUNO DECLARAR MAIS DE UM RESPONSAVEL E OU TIVER BOLSA, QUAL RESPONSAVEL REGISTRAR NO CONTRATO?
+            - Vamos adicionar no contrato o resposavel cadastrado na matricula até segunda ordem, caso não houver o proprio aluno
+            - Na tabela de responsaveis vamos adicionar o responsaveis possiveis do aluno que hoje são:
+                - Aluno ou resposavel maior de idade
+                - FNDI se possuir FIES ou FIES CAIXA
+                - CAIXA se possuir FIES CAIXA
+                - PROUNI se possuir PROUNI
+	- INSERIR LANCAMENTO (FINANCEIRO)
+		GERAR LANCAMENTO PARA TODAS AS PARCELAS OU SO AS QUE ESTAO PAGAS?
+            - Gerar lançamento de todas e dar baixa nas pagas na matricula
+		QUANDO O VALOR DO BOLETO (BOLETOS_SERVICE) FOR DE VARIAS PARCELAS QUAL O VALOR COLOCAR NO VALOR PAGO DE CADA PARCELA?
+            - Vamos colocar o valor referente ao valor liquido e realizar o registro na tabela de negociação
+	- INSERIR LANCAMENTO BOLETO (FINANCEIRO)
+			QUANDO GERAR O FINANCEIRO BOLETO? SOMENTE QUANDO O LANCAMENTO ESTIVER PAGO OU INDEPENDENTE DISSO?
+                - Somente quando possuir o id do boleto

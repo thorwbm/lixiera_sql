@@ -1,0 +1,5 @@
+HIGIENIZACAO DAS DISCIPLINAS
+	
+	* 'PRÁTICAS EM SAÚDE COLETIVA I'
+	    - retirar o ponto no final do nome da disciplina 'PRÁTICAS EM SAÚDE COLETIVA I.'
+		- existem alunos para a mesma turma em duas disciplinas distintas  disciplina_id =(4079,4080), turma_id = (2284)

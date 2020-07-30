@@ -1,0 +1,29 @@
+DECLARE @JSON_AUX VARCHAR(MAX)
+SET @JSON_AUX = '{"hierarchy": {"unity":{"value":"CMMG","name":"Faculdade Ciências Médicas"},"class":{"value":"CMMG","name":"CMMG"},"grade":{"value":"999999","name":"Não informado"}}}'
+  
+       UPDATE USU SET USU.EXTRA = JSON_MODIFY(
+                                      JSON_MODIFY(
+                                          JSON_MODIFY(
+                                              JSON_MODIFY(@JSON_AUX, '$.hierarchy.class.value', aux.turma_id), 
+                                              '$.hierarchy.class.name', tur.turma_nome),
+                                          '$.hierarchy.grade.value', isnull(cast(eta.id as varchar), '999999')),
+                                      '$.hierarchy.grade.name', isnull(eta.nome,'Não informado') collate database_default)
+
+DECLARE @JSON_AUX VARCHAR(MAX)
+SET @JSON_AUX = '{"hierarchy": {"provider": {"value": "SAE", "name": "SAE"}, '+       -- ENTIDADE
+                              '{"unity":{"value":"999999","name":"Não informado"}, '+ -- ESCOLA
+                              '"class":{"value":"999999","name":"Não informado"}, '+  -- TURMA
+                              '"grade":{"value":"999999","name":"Não informado"}}}'   -- GRADE
+  
+
+                 JSON_MODIFY(
+	                 JSON_MODIFY(
+	                     JSON_MODIFY(
+                             JSON_MODIFY(
+                                 JSON_MODIFY(
+                                     JSON_MODIFY(@JSON_AUX, '$.hierarchy.class.value', tur.value), 
+                                     '$.hierarchy.class.name', tur.name),
+                                 '$.hierarchy.grade.value', gra.grade_id),
+                             '$.hierarchy.grade.name', gra.grade_nome), 
+					     '$.hierarchy.unity.name', ta.escolanome),
+			         '$.hierarchy.unity.value', TA.EscolaId)
