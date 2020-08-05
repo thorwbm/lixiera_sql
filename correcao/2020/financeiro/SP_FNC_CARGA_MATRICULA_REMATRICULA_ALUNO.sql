@@ -3,23 +3,21 @@
 -- SELECT ALUNO_ID, CURRICULO_ID , * FROM vw_Curriculo_aluno_pessoa WHERE ALUNO_RA = '20101.00215'
 
 
--- exec SP_FNC_CARGA_MATRICULA_REMATRICULA 11717
+-- exec SP_FNC_CARGA_MATRICULA_REMATRICULA_ALUNO 37641, 11717
   
--- ALTER   PROCEDURE [dbo].[SP_FNC_CARGA_MATRICULA_REMATRICULA_ALUNO]  
-declare  @curriculo_aluno_id int, 
- @USUARIO INT    
---AS       
-SET NOCOUNT ON;       
+CREATE OR  ALTER   PROCEDURE [dbo].[SP_FNC_CARGA_MATRICULA_REMATRICULA_ALUNO]  
+	@curriculo_aluno_id int, 
+	@USUARIO INT    
+		AS   
+		
+	SET NOCOUNT ON;       
       
-declare @passo varchar(200), @lancamento_id int, @lancamentoboleto_id int,      
-@negociacao_id int, @descricao_atual varchar(max), @descricao_nova varchar(max)
+	declare @passo varchar(200), @lancamento_id int, @lancamentoboleto_id int,      
+            @negociacao_id int, @descricao_atual varchar(max), @descricao_nova varchar(max)
 
-SET @curriculo_aluno_id = 37641
-SET @USUARIO = 11717
 
 declare @aluno_ra varchar(50) = 'VAZIO'
-      
-
+     
 DECLARE @DATAEXECUCAO DATETIME      
 SET @DATAEXECUCAO = CAST( CONVERT(VARCHAR(19),GETDATE(),120) AS DATETIME)      
 print @DATAEXECUCAO      
@@ -39,8 +37,8 @@ IF object_id('tempdb..#TEMP') IS NOT NULL
 
 	IF(@aluno_ra <> 'VAZIO')
 	BEGIN
---begin try      
---begin tran       
+begin try      
+begin tran       
 ---#####################################################################################        
 --  IMPORTACAO DAS INFORMACOES DE PARCELAS E DESCONTOS DOS ALUNOS (CALOUROS)       
 ---#####################################################################################      
@@ -91,7 +89,7 @@ select distinct
 	   PAR.RA = @ALUNO_RA            AND 
 	   CRA.ID = @CURRICULO_ALUNO_ID  AND
        PAR.status_matricula_nome = 'FINALIZADO' AND       
-       STATUS_PARCELA            = 'PAGO'   and
+       --STATUS_PARCELA            = 'PAGO'   and
 	   xxx.id is null
           
 	   UPDATE CON SET VIGENTE = 0
@@ -372,7 +370,7 @@ select distinct
        lan.status_id = 5 and       
        par.boleto_id is not null and       
        xxx.id is null      
- end      
+       
  -- GERAR LOG      
  EXEC SP_GERAR_LOG_EM_LOTE_INSERT 'FINANCEIRO_NEGOCIACAO', @DATAEXECUCAO      
       
@@ -381,26 +379,29 @@ select distinct
 -- ATUALIZAR LANCAMENTO COM BASE NA NEGOCIACAO      
 --------------------------------------------------------------------------------------------------------      
 set @passo = 'ATUALIZAR LANCAMENTO COM BASE NA NEGOCIACAO'      
-    
+   -- drop table #tmp_lancamento
   select     
-         lan.id as lancamento_id, neg.id as negociacao_id       
+         lan.id as lancamento_id, neg.id as negociacao_id, lcb.id as lancamentoboleto_id       
     into #tmp_lancamento      
     from       
-         financeiro_lancamento lan join contratos_contrato        con on (con.id = lan.contrato_id AND       
-                                                                          LAN.negociacao_id IS NULL)      
+         financeiro_lancamento lan join contratos_contrato        con on (con.id = lan.contrato_id)      
                                    join vw_Curriculo_aluno_pessoa pes on (pes.curriculo_id = con.curriculo_id and      
-                                                                          pes.aluno_id     = con.aluno_id     and      
-                                                                          con.tipo_id      = 1)      
+                                                                          pes.aluno_id     = con.aluno_id  )      
                                    join VW_FNC_PARCELA_MAT_REM    par on (par.ra collate database_default   = pes.aluno_ra collate database_default and      
                                                                           par.ano_competencia               = lan.ano_competencia and      
-                                                               par.mes_competencia               = lan.mes_competencia and      
+                                                                          par.mes_competencia               = lan.mes_competencia and      
                                                                           cast(par.DATA_VENCIMENTO as date) = cast(lan.data_vencimento as date) and      
                                                                           par.desconto_id is null and par.status_matricula_nome = 'finalizado' and       
                                                                           par.plano_nome <> 'mensal' and par.status_parcela = 'pago')      
-                                  JOIN FINANCEIRO_NEGOCIACAO      NEG ON (NEG.DESCRICAO = 'Pagamento boleto - ' +  convert(varchar(10),par.boleto_id))      
- where     
+                                  JOIN FINANCEIRO_NEGOCIACAO      NEG ON (NEG.DESCRICAO = 'Pagamento boleto - ' +  convert(varchar(10),par.boleto_id))     
+						     left join financeiro_lancamentoBoleto lcb on (lan.id = lcb.lancamento_id) 
+ where 
+       con.vigente = 1 and 
+	   con.tipo_id = 1 and 
+	   pes.curriculo_aluno_id = @curriculo_aluno_id and
        lan.status_id = 5 and       
- par.boleto_id is not null AND LAN.negociacao_id IS NULL       
+       par.boleto_id is not null AND 
+	   LAN.negociacao_id IS NULL       
       
  -- GERAR LOG      
 ---------------------------------------------------------------------------------      
@@ -423,37 +424,39 @@ set @passo = 'ATUALIZAR LANCAMENTO COM BASE NA NEGOCIACAO'
            LAN.negociacao_id = tmp.negociacao_id      
       from     
            financeiro_lancamento lan join #tmp_lancamento tmp on (lan.id = tmp.lancamento_id)      
-      
+       
 -- #####################################################################################################      
 --------------------------------------------------------------------------------------------------------      
 -- ATUALIZAR LANCAMENTO BOLETO COM BASE NA NEGOCIACAO      
 --------------------------------------------------------------------------------------------------------      
 set @passo = 'ATUALIZAR BOLETO COM BASE NA NEGOCIACAO'      
-      
-  select     
-         lcb.id as lancamentoboleto_id, neg.id as negociacao_id       
-    into #tmp_lancamentoboleto      
-    from       
-         financeiro_lancamento lan join contratos_contrato        con on (con.id = lan.contrato_id AND       
-                                                                          LAN.negociacao_id IS NULL)      
-                                   join vw_Curriculo_aluno_pessoa pes on (pes.curriculo_id = con.curriculo_id and      
-                                                                          pes.aluno_id     = con.aluno_id     and      
-                                                                          con.tipo_id      = 1)      
-                                   join VW_FNC_PARCELA_MAT_REM    par on (par.ra collate database_default   = pes.aluno_ra collate database_default and      
-                                                                          par.ano_competencia               = lan.ano_competencia and      
-                                                                          par.mes_competencia               = lan.mes_competencia and      
-                                                                          cast(par.DATA_VENCIMENTO as date) = cast(lan.data_vencimento as date) and      
-                                                                          par.desconto_id is null and par.status_matricula_nome = 'finalizado' and       
-                                                                          par.plano_nome <> 'mensal' and par.status_parcela = 'pago')      
-                                   JOIN FINANCEIRO_NEGOCIACAO      NEG ON (NEG.DESCRICAO = 'Pagamento boleto - ' +  convert(varchar(10),par.boleto_id))      
-                  join financeiro_lancamentoBoleto lcb on (lan.id = lcb.lancamento_id)      
-   where lan.status_id = 5 and       
-         par.boleto_id is not null AND LAN.negociacao_id IS NULL       
+  --    --drop table #tmp_lancamentoboleto
+  --select     
+  --       lcb.id as lancamentoboleto_id, neg.id as negociacao_id       
+  -- -- into #tmp_lancamentoboleto      
+  -- select * from       
+  --       financeiro_lancamento lan join contratos_contrato        con on (con.id = lan.contrato_id )      
+  --                                 join vw_Curriculo_aluno_pessoa pes on (pes.curriculo_id = con.curriculo_id and      
+  --                                                                        pes.aluno_id     = con.aluno_id)      
+  --                                 join VW_FNC_PARCELA_MAT_REM    par on (par.ra collate database_default   = pes.aluno_ra collate database_default and      
+  --                                                                        par.ano_competencia               = lan.ano_competencia and      
+  --                                                                        par.mes_competencia               = lan.mes_competencia and      
+  --                                                                        cast(par.DATA_VENCIMENTO as date) = cast(lan.data_vencimento as date) and      
+  --                                                                        par.desconto_id is null and par.status_matricula_nome = 'finalizado' and       
+  --                                                                        par.plano_nome <> 'mensal' and par.status_parcela = 'pago')      
+  --                              left   JOIN FINANCEIRO_NEGOCIACAO      NEG ON (NEG.DESCRICAO = 'Pagamento boleto - ' +  convert(varchar(10),par.boleto_id))      
+                                        
+  -- where 
+  --       con.vigente = 1 and 
+	 --    con.tipo_id = 1 and 
+	 --    pes.curriculo_aluno_id = 37641 and ---@curriculo_aluno_id and
+	 --    lan.status_id = 5 and       
+  --       par.boleto_id is not null AND LAN.negociacao_id IS NULL       
       
  -- GERAR LOG      
 ---------------------------------------------------------------------------------      
 declare CUR_lancbol cursor for       
-    SELECT lancamentoboleto_id FROM #tmp_lancamentoboleto      
+    SELECT distinct lancamentoboleto_id FROM #tmp_lancamento      
     open CUR_lancbol       
     fetch next from CUR_lancbol into @lancamentoboleto_id      
     while @@FETCH_STATUS = 0      
@@ -468,15 +471,15 @@ declare CUR_lancbol cursor for
     UPDATE     
            lac SET lac.negociacao_id = tmp.negociacao_id      
       from     
-           financeiro_lancamentoboleto lac join #tmp_lancamentoboleto tmp on (lac.id = tmp.lancamentoboleto_id)      
-          
+           financeiro_lancamentoboleto lac join #tmp_lancamento tmp on (lac.id = tmp.lancamentoboleto_id)      
+
 -- #####################################################################################################      
 --------------------------------------------------------------------------------------------------------      
 -- ATUALIZAR DECRICAO NA NEGOCIACAO      
 --------------------------------------------------------------------------------------------------------      
 set @passo = 'ATUALIZAR DECRICAO NA NEGOCIACAO'      
     
-  select     
+  select distinct    
          neg.id as negociacao_id, negociacao_descricao = PAR.plano_nome + ' - Pagamento boleto - ' +  convert(varchar(10),par.boleto_id)      
     into #tmp_negociacao      
     FROM      
@@ -501,9 +504,9 @@ declare CUR_neg cursor for
     deallocate CUR_neg       
 ---------------------------------------------------------------------------------      
   UPDATE     
-         NEG SET NEG.DESCRICAO = tmp.negociacao_descricao       
+         NEG SET NEG.DESCRICAO = tmp.negociacao_descricao   
     from     
-         financeiro_negociacao neg join #tmp_negociacao tmp on (neg.id = tmp.negociacao_descricao)      
+         financeiro_negociacao neg join #tmp_negociacao tmp on (neg.id = tmp.negociacao_id)      
       
 -- ############ FINALIZANDO O PROCESSO ##############      
    commit      
@@ -511,7 +514,7 @@ print ('CARGA FINANCEIRA - PROCESSO FINALIZADO COM SUCESSO !!!')
 end try       
 begin catch      
     rollback       
-    print @passo + 'CARGA FINANCEIRA - ERRO DURANTE O PROCESSO. ### ' + ERROR_MESSAGE()      
+    print @passo + '-   CARGA FINANCEIRA - ERRO DURANTE O PROCESSO. ### ' + ERROR_MESSAGE()      
       
 end catch       
       
@@ -522,18 +525,7 @@ end catch
 
 SET NOCOUNT OFF;        
     
-/*    
-    
-select * from vw_contrato_parcela_desconto_aluno    
-where aluno_ra = '1171.000140'    
-select * from VW_FNC_DESCONTO_MAT_REM    
-where RA = '1171.000140'    
-    
-ROLLBACK     
-    
-SELECT * FROM FINANCEIRO_LANCAMENTO ORDER BY ID DESC    
-*/    
+   
 
 GO
-
 
