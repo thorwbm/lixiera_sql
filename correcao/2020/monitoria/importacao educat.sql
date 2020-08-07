@@ -4,14 +4,14 @@ begin tran
 -- ***************** CARGA NA TABELA CURSO **************************
  -- select * from curso 
   --insert into curso 
-	  select distinct curso_id, curso,'ATIVO' from [tmp_importacao_monitoria_2019] imp
+	  select distinct curso_id, curso,'ATIVO' from [tmp_importacao_monitoria_2020] imp
 	  where not exists (select * from curso cur where cur.des_cur COLLATE DATABASE_DEFAULT = imp.curso COLLATE DATABASE_DEFAULT)
 	  order by 1
 
 -- ***************** CARGA NA TABELA DISCIPLINA **************************
   --select * from disciplina
  -- insert into disciplina 
-	  select distinct DISCIPLINA, disciplina_id, sigla =null   from tmp_importacao_monitoria_2019 imp	
+	  select distinct DISCIPLINA, disciplina_id, sigla =null   from tmp_importacao_monitoria_2020 imp	
 	   where not exists (select * 
 	                     from disciplina dis 
 						where dis.des_dis COLLATE DATABASE_DEFAULT = imp.disciplina COLLATE DATABASE_DEFAULT)	
@@ -23,7 +23,7 @@ begin tran
 select distinct professor, cpf_professor, login = substring(professor,1,CHARINDEX(' ',professor)-1) + '.' + reverse(substring(reverse(professor),1,CHARINDEX(' ',reverse(professor))-1)) ,
                 senha = SUBSTRING(sys.fn_sqlvarbasetostr(HASHBYTES('sha1', replace(replace(cpf_professor,'.',''),'-',''))),3,60),
                 email = isnull(email,'semEmail@email.com'),professor_telefone = '000000000', data_nascimento = isnull(data_nascimento, '1901-01-01') 
-		  from tmp_importacao_monitoria_2019 tem
+		  from tmp_importacao_monitoria_2020 tem
 	where tem.professor is not null and 
 	not exists (select * from usuario usu 
 	                   where usu.nom_usu COLLATE DATABASE_DEFAULT = tem.professor COLLATE DATABASE_DEFAULT and  
@@ -35,14 +35,14 @@ order by 1
 
 -- ******************* CARGA DE PROFESSORES NA TABELA USUARIO_PERFIL ******************************************
 -- insert into usuario_perfil
-select distinct usu.cod_usu,3  from tmp_importacao_monitoria_2019 tem join usuario usu on (replace(replace(usu.cpf_usu,'.',''),'-','') COLLATE DATABASE_DEFAULT = replace(replace(tem.cpf_professor,'.',''),'-','') COLLATE DATABASE_DEFAULT)
+select distinct usu.cod_usu,3  from tmp_importacao_monitoria_2020 tem join usuario usu on (replace(replace(usu.cpf_usu,'.',''),'-','') COLLATE DATABASE_DEFAULT = replace(replace(tem.cpf_professor,'.',''),'-','') COLLATE DATABASE_DEFAULT)
 where not exists (select * from usuario_perfil usp where usp.cod_usu = usu.cod_usu and usp.cod_per = 3)
 
 
 -- ******************* CARGA NA TABELA USUARIO_CURSO_DISCPLINA ONDE RELACIONA O PROFESSOR AS SUAS DISCIPLINAS  ******************************************
 --insert into usuario_curso_disciplina
 select distinct cur.cod_cur, dis.cod_dis, usu.cod_usu
-  from tmp_importacao_monitoria_2019 tem join usuario usu on (replace(replace(usu.cpf_usu,'.',''),'-','') COLLATE DATABASE_DEFAULT = replace(replace(tem.cpf_professor,'.',''),'-','') COLLATE DATABASE_DEFAULT)
+  from tmp_importacao_monitoria_2020 tem join usuario usu on (replace(replace(usu.cpf_usu,'.',''),'-','') COLLATE DATABASE_DEFAULT = replace(replace(tem.cpf_professor,'.',''),'-','') COLLATE DATABASE_DEFAULT)
                                  join disciplina dis on (dis.des_dis  = tem.disciplina)
 								 join curso      cur on (cur.des_cur  = tem.curso)
  where not exists (select * from usuario_curso_disciplina ucd where ucd.cod_cur = cur.cod_cur and ucd.cod_dis = dis.cod_dis and ucd.cod_usu = usu.cod_usu)
@@ -67,7 +67,7 @@ WHERE NOT EXISTS (SELECT * FROM usuario_curso_disciplina UCDX
 	                 ciccpf = STUFF(STUFF(STUFF(ALUNO_CPF,10,0,'-'),7,0,'.'),4,0,'.') COLLATE DATABASE_DEFAULT,
                      senha = isnull(SUBSTRING(sys.fn_sqlvarbasetostr(HASHBYTES('sha1', replace(replace(ALUNO_CPF,'.',''),'-',''))),3,60),'7751a23fa55170a57e90374df13a3ab78efe0e99') COLLATE DATABASE_DEFAULT, 
 	                 ALUNO_TELEFONE = NULL,ALUNO_DTNASC
-	  FROM tmp_importacao_monitoria_2019 TEM
+	  FROM tmp_importacao_monitoria_2020 TEM
 	 WHERE 
 	       NOT EXISTS (SELECT * FROM USUARIO USU WHERE replace(replace(USU.cpf_usu,'.',''),'-','') = replace(replace(TEM.ALUNO_CPF,'.',''),'-','')) 
 	 ORDER BY 1
@@ -80,7 +80,7 @@ if exists(Select * from Tempdb..SysObjects Where Name Like '#tmp_import_final%')
 
 	select tmp.curso, tmp.disciplina, tmp.aluno_nome,  tmp.aluno_cpf, tmp.etapa,  tmp.ano,max(isnull(tmp.nota,0)) nota
 	 into #tmp_importacao
-     from tmp_importacao_monitoria_2019	tmp			where  tmp.aluno_nome = 'BARBARA BELLONI PEREZ COUTO'		  							  
+     from tmp_importacao_monitoria_2020	tmp			where  tmp.aluno_nome = 'BARBARA BELLONI PEREZ COUTO'		  							  
 	and 
 		  tmp.situacao  in ( 'Aprovado', 'DISPENSADO', 'RESERVA', 'Reprovado por Falta','Reprovado') 
 	group by tmp.curso, tmp.disciplina, tmp.aluno_nome,  tmp.aluno_cpf,  tmp.ano, tmp.etapa
