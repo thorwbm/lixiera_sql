@@ -21,12 +21,12 @@
  select distinct 
         avaliacao_id, curso_id, apl.id_periodo,apl.dt_aplicacao,  
         instituicao_id, apl.id_disciplina, qtd_participante
-        -- , CMM.id_avaliacao, cmm.ds_avaliacao, cmm.exa_id, apl.ds_aplicacao, apl.id_instituicao, apl.extra, apl.id_avaliacao as ava_id
+        - , CMM.id_avaliacao, cmm.ds_avaliacao, cmm.exa_id, apl.ds_aplicacao, apl.id_instituicao, apl.extra, apl.id_avaliacao as ava_id
    from 
         VW_CMMG_PARAMENTRO_IMPORTACAO IMP JOIN VW_CMMG_AVALIACAO    CMM ON (imp.avaliacao_id = cmm.exa_id)
                                           JOIN TbAvaliacaoAplicacao apl ON (CMM.ID_AVALIACAO = apl.ID_AVALIACAO)
   WHERE 
-        apl.id_avaliacao = 377 AND 
+        apl.id_avaliacao = 367 AND 
         imp.curso_nome IS NOT NULL 
 
 
@@ -41,18 +41,18 @@
 -- Avaliação APIC - 7º período de Enfermagem - E013S07A201T - Assistência de Enfermagem à Saúde do idoso       360
 
    --SELECT * FROM VW_CMMG_AVALIACAO
-   --select * from TBCURSO WHERE id_curso = 1
+   --select * from TBCURSO WHERE id_curso = 37
    --SELECT * FROM CMMG_APPLICATION_APPLICATION WHERE STARTED_at is not null 
-   --SELECT * FROM TbDisciplina WHERE id_disciplina in (881)
+   --SELECT * FROM TbDisciplina WHERE id_disciplina in (41)
    --select * from tbperiodo 
 
-    declare @AVALIACAO_EXT_ID INT = 21
+    declare @AVALIACAO_EXT_ID INT = 12
     declare @ID_CURSO         int = 1
-    declare @ID_PERIODO       int = 19
-    declare @DATA_APLICACAO   datetime = '2020-07-22 16:00:00.000'
+    declare @ID_PERIODO       int = 22
+    declare @DATA_APLICACAO   datetime = '2020-06-15 14:00:00.000'
     declare @ID_INSTITUICAO   int = 7 
-    declare @ID_DISCIPLINA    int = 878
-    declare @NR_RESPONDENTES  int = 200
+    declare @ID_DISCIPLINA    int = 41
+    declare @NR_RESPONDENTES  int = 173
 
 declare @inicio datetime = getdate()
 declare @FINAL datetime 

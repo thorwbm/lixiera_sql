@@ -22,6 +22,7 @@ with cte_aluno_graducao as (
                    periodo = pro.periodo,                                  
                    prova   = pro.prova, 
                    cur.id as curso_id, cur.nome as curso_nome, TUR.ID AS TURMA_ID, PRO.ENTIDADE, pro.external_id   
+			
               from erp_prd..auth_user usu join erp_prd..academico_aluno         alu on (usu.person_id = alu.pessoa_id)
                                           join erp_prd..academico_turmadisciplinaaluno tda on (alu.id = tda.aluno_id)
                                           join erp_prd..academico_turmadisciplina      tds on (tds.id = tda.turma_disciplina_id)
@@ -31,7 +32,11 @@ with cte_aluno_graducao as (
                                           join erp_prd..tmpimp_provaexam               pro on (tur.nome = pro.turma collate database_default and 
                                                                                                dis.nome = pro.disciplina collate database_default and 
                                                                                                cur.nome = pro.curso collate database_default)
-            where tda.status_matricula_disciplina_id = 1   
+            --where tda.status_matricula_disciplina_id = 1   
+
+
+		
+
 )
 -- DROP TABLE #TMP_CARGA
 -- select * from  #TMP_CARGA
@@ -93,8 +98,8 @@ SET @JSON_AUX = '{"hierarchy": {"unity":{"value":"CMMG","name":"Faculdade Ciênci
                                  join erp_prd..curriculos_grade     grd on (grd.id = tur.grade_id)                                  
                               left   JOIN erp_prd..academico_etapa  eta on (eta.id = grd.etapa_id and  
                                                                             eta.nome =  aux.periodo collate database_default  )
-        WHERE --USU.EXTRA IS NULL  and 
-		      aux.external_id = 377
+        WHERE USU.EXTRA IS NULL  and 
+		      aux.external_id = 367
 
 
         -- COMMIT 
@@ -125,14 +130,14 @@ UPDATE app SET app.extra =
 FROM APPLICATION_APPLICATION APP JOIN EXAM_EXAM EXA ON (APP.EXAM_ID = EXA.ID)
                                    JOIN #TMP_CARGA CAR ON(CAR.exam_id = EXA.ID AND 
                                                           CAR.user_id = APP.user_id)
-WHERE  exa.external_id = 377 and 
+WHERE  exa.external_id = 367 and 
    --   exa.name = 'APIC do 7º período de Medicina - 1º/2020'
       CAR.TURMA_NOME IN   (
 	 select turma collate database_default from erp_prd..tmpimp_provaexam
 	 )
 
 
-
+	 select distinct turma_nome from #TMP_CARGA
 
 --#####################################################################################################
 DECLARE @JSON_AUX VARCHAR(MAX)
@@ -151,4 +156,10 @@ SET @JSON_AUX = '{"hierarchy": {"unity":{"value":"CMMG","name":"Faculdade Ciênci
 										'$.hierarchy.curso.name', vw.curso_nome)
 --SELECT *
 FROM exam_exam exa JOIN vw_educat_cmmg_curso_disciplina_periodo vw ON (exa.external_id = vw.id_avaliacao)
- WHERE id_avaliacao = 377
+ WHERE id_avaliacao = 367
+
+
+
+
+
+ select * from erp_prd..tmpimp_provaexam

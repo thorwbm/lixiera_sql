@@ -43,7 +43,7 @@ with    cte_participante_avaliacao as (
                                                join cte_usuario                usu on (usu.usuario_id = app.user_id)      
                                                join login_provider             pro on (pro.id = usu.provider_id)      
                                                join cte_participante_avaliacao par on (exa.id = par.exam_id)      
-WHERE exa.id = 18
+WHERE exa.id = 12
 
 		SELECT * FROM exam_exam 
 
@@ -65,4 +65,4 @@ SET @JSON_AUX = '{"hierarchy": {"unity":{"value":"CMMG","name":"Faculdade Ciênc
 										'$.hierarchy.curso.name', vw.curso_nome)
 --SELECT *
 FROM exam_exam exa JOIN vw_educat_cmmg_curso_disciplina_periodo vw ON (exa.external_id = vw.id_avaliacao)
- WHERE id_avaliacao = 377
+ WHERE id_avaliacao = 367

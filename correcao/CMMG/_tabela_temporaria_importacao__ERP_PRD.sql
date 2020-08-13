@@ -16,9 +16,9 @@ SELECT rtrim(ltrim(curso_nome)) as curso, entidade = 'CMMG - Faculdade de Ciênci
 	   rtrim(ltrim(ds_avaliacao)) as prova,
 	   turma = rtrim(ltrim(reverse(left(reverse(ds_aplicacao),charindex('-',reverse(ds_aplicacao)) -1)))), 
 	   rtrim(ltrim(disciplina_nome)) as disciplina, id_avaliacao as external_id
- into tmpimp_provaexam
+into tmpimp_provaexam
  FROM educat_cmmg..vw_aplicacao_curso_disciplina_periodo 
-where id_avaliacao = 377
+where id_avaliacao = 367
 
 select * from tmpimp_provaexam
 

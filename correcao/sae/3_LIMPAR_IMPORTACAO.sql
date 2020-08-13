@@ -1,18 +1,20 @@
--- select * from TbAvaliacaoAplicacao where  ID_AVALIACAO_APLICACAO >= 32023
+-- select * from TbAvaliacaoAplicacao where  ds_aplicacao like '1ª série - Matemática - 2º BI/2020'
 
+
+--select * from tbavaliacaoAplicacao where id_avaliacao = 1556
 
 
 declare @id_avaliacao_aplicacao int
 declare @descricao varchar(max)
 declare @error varchar(max)
 
-DECLARE @AVALIACAO VARCHAR(200) = 'Desafio SAE 3 série - 1º Bimestre de 2020'
+DECLARE @AVALIACAO VARCHAR(200) = '3ª SÉRIE - MATEMÁTICA - 2º BI/2020'
 DECLARE @INICIO DATETIME
 DECLARE @FINAL  DATETIME
 -----------------------------------------------------------
 select @id_avaliacao_aplicacao = id_avaliacao_aplicacao
   from TbAvaliacaoAplicacao 
- where ds_aplicacao = @AVALIACAO and id_avaliacao_aplicacao = 31988
+ where ds_aplicacao = @AVALIACAO and id_avaliacao_aplicacao = 32231
 
 set @descricao = 'EXCLUSAO DA AVALIACAO - [' + @AVALIACAO + ']'
 SET @INICIO = GETDATE()
