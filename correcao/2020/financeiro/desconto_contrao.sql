@@ -25,6 +25,3 @@ select * from cte_lancamento_desconto union
 select * from cte_lancamento_desconto_deletado 
 order by lancamento_id, ano_competencia, mes_competencia, tipo
 
-
-
-select * from contratos_desconto

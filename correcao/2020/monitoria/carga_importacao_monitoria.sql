@@ -3,7 +3,7 @@ select  *, criado_em = getdate()
    into tmp_importacao_monitoria_2020  
 from vw_disciplina_cursada_aluno_monitoria
 
-
+where aluno_nome = 'Guilherme Lopes Machado'
 
 
 

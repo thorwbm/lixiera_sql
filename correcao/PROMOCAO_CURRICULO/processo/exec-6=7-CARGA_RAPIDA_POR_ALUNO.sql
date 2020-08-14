@@ -5,7 +5,7 @@ select DISTINCT ent.curriculo_id, cra.grade_id, cra.aluno_id, CRA.ALUNO_NOME
                                                                                        ent.grade_id           = cra.grade_id and 
 																					   ent.exigenciadisciplina_id = 2)
 										
-  where cra.aluno_nome = 'LARISSA JARDIM MELO' and 
+  where cra.aluno_nome = 'JESSICA ROSA DOS SANTOS' and 
         curriculo_aluno_status_id = 13
 
 ------------------------------------------------------------------------
@@ -16,6 +16,8 @@ WHERE CURRICULO_ID =2375  AND GRADE_ID = 7009    ORDER BY TURMA_NOME, DISCIPLINA
 */
 drop table  #temp_insert;
 
+
+select * from vw_Curriculo_aluno_pessoa where aluno_nome = 'JESSICA ROSA DOS SANTOS'
 with cte_alunos_enturmar as (
 select ent.curriculo_id, cra.aluno_id, ent.disciplina_id, ent.disciplina_nome, cra.grade_id, cra.curriculo_aluno_id,
        CRA.curriculo_nome, ALUNO_NOME
@@ -23,7 +25,7 @@ select ent.curriculo_id, cra.aluno_id, ent.disciplina_id, ent.disciplina_nome, c
                                                                                        ent.grade_id           = cra.grade_id and 
 																					   ent.exigenciadisciplina_id = 2)
 										
-  where cra.aluno_nome = 'LARISSA JARDIM MELO' and 
+  where cra.aluno_nome = 'JESSICA ROSA DOS SANTOS' and 
         curriculo_aluno_status_id = 13
 ), 
 	cte_turmadisciplina as (
