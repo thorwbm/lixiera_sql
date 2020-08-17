@@ -9,8 +9,8 @@ select distinct cur.id as curso_id, cur.nome as curso_nome,
     linha = cur.nome + ' - ' + TUR.nome + ' - ' + dis.nome + ' - ' + gra.nome + ' - ' +  
             convert(varchar(10),eta.periodo) + '/' + convert(varchar(10),eta.ano),  
     cast(tur.inicio_vigencia as date) AS inicio_vigencia,   
-    json_value(tds.atributos, '$.moodle.id' ) as moodle_id,   
-    json_value(tds.atributos, '$.moodle.course_id' ) as moodle_curse_id  
+    json_value(tds.atributos, '$.moodle.id' ) as moodle_grupo_id,   
+    json_value(tds.atributos, '$.moodle.course_id' ) as moodle_curso_id  
 from academico_turmadisciplina tds  
                  join academico_turma          tur on (tur.id = tds.turma_id)  
                  join academico_disciplina     dis on (dis.id = tds.disciplina_id)  
