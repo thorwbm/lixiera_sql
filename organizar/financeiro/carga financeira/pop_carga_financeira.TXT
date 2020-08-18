@@ -1,0 +1,57 @@
+CARGA FINANCEIRA
+	- CARGA CONTRATO
+		??? - COMO PROCEDER QUANDO O ALUNO TIVER MATRICULA/REMATRICULA EM UM CURRICULO QUE ELE NAO POSSUI OU ESTA ATIVO?
+		??? - QUANDO O ALUNO DECLARAR MAIS DE UM RESPONSAVEL E OU TIVER BOLSA, QUAL RESPONSAVEL REGISTRAR NO CONTRATO?
+		* Com base nos bancos matricula e rematricula, buscar os alunos:
+			# com status de matricula igual a 6 (finalizado) 
+			# periodo corrente
+			# gratuidade igual nulo
+			# desconto id is null 
+			
+	- INSERIR CONTA
+		* O aluno devera ter uma conta criada caso contrario crio uma sendo o aluno seu proprio responsavel;
+		
+	- INSERIR RESPONSAVEL BOLSAS
+		* Carga na tabela financeiro_responsavel (alunos que possuem gratuidade);
+			# Busco na matricula e rematricula todos os alunos que possuem gratuidade e insiro na tabela financeiro_responsavel
+			
+	- INSERIR RESPONSAVEL NORMAL
+		* Com base na matricula e rematricula caso o aluno tenha declarado algum responsavel este sera incluido na pessoas_pessoa e na financeiro_responsavel
+	
+	- INSERIR PARCELAS (CONTRATO)
+		* Com base nos bancos matricula e rematricula, buscar todas as parcelas associadas aos contratos importados:
+			# gratuidade is null
+			# desconto id is null 
+			# periodo corrente
+			# status da matricula finalizado
+			
+	- INSERIR DESCONTOS (CONTRATO)
+		* Com base nos bancos matricula e rematricula, buscar todos os descontos associados as parcelas importadas:
+			# gratuidade is null 
+			# periodo corrente
+			# status matricula finalizado
+			# desconto id is not null 
+			# pessoa_prouni igual a zero ou nulo
+	
+	- INSERIR LANCAMENTO (FINANCEIRO)
+		??? - GERAR LANCAMENTO PARA TODAS AS PARCELAS OU SO AS QUE ESTAO PAGAS?
+		??? - QUANDO O VALOR DO BOLETO (BOLETOS_SERVICE) FOR DE VARIAS PARCELAS QUAL O VALOR COLOCAR NO VALOR PAGO DE CADA PARCELA?
+		* Com base nos bancos matricula, rematricula, as tabelas contratos_contrato, contrato_parcela, contrato_desconto,
+          financeiro_conta gerar os lancamentos:
+			
+	- INSERIR DESCONTOS (FINANCEIRO)
+		* Com base contrato_parcela, contrato_desconto e financeiro_lancamento, gerar os descontos;
+		
+	- INSERIR LANCAMENTO BOLETO (FINANCEIRO)
+		??? - QUANDO GERAR O FINANCEIRO BOLETO? SOMENTE QUANDO O LANCAMENTO ESTIVER PAGO OU INDEPENDENTE DISSO? 
+			
+	- INSERIR NEGOCIACAO
+		* Com base nos bancos matricula e rematricula e as tabelas finaceiro_lancamento e contratos_contrato:
+			# Quando o plano de pagamento for diferente de mensal;
+			# quando o status do lancamento for pago;
+			# quando existir um boleto;
+			# quando o status da parcela for pago;
+			
+			
+			
+			
