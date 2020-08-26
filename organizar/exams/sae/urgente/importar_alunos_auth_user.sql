@@ -6,7 +6,7 @@ SET @JSON_AUX = '{"hierarchy": {"provider": {"value": "SAE", "name": "SAE"}, '+ 
                               '"unity":{"value":"999999","name":"Não informado"}, '+ -- ESCOLA
                               '"class":{"value":"999999","name":"Não informado"}, '+  -- TURMA
                               '"grade":{"value":"999999","name":"Não informado"}}}'   -- GRADE
---  BEGIN TRAN;
+  BEGIN TRAN;
 -- {"hierarchy": {"provider": {"value": "SAE", "name": "SAE"}, "unity": {"name": "Colégio Ouro Preto", "value": "34d3a52e96b0087c48b4a7d761133a57"}, "grade": {"name": "1ª série", "value": "BF6A4629-FC03-4162-9AC1-788ADD934D8C"}, "class": {"name": "1ª Médio A - 2017", "value": "a53e7ecf10db953bafb24a01c5dec6f7"}}}
  ;
 WITH cte_grade AS (
@@ -14,9 +14,9 @@ WITH cte_grade AS (
 			 from hierarchy_hierarchy WHERE type = 'grade'
 )
 
---INSERT INTO auth_user 
---      (password, is_superuser, username, is_staff, is_active, date_joined, name, public_identifier, 
---       extra, provider_id, created_at, updated_at, first_name, last_name, email)
+INSERT INTO auth_user 
+      (password, is_superuser, username, is_staff, is_active, date_joined, name, public_identifier, 
+       extra, provider_id, created_at, updated_at, first_name, last_name, email)
 SELECT DISTINCT   
        password = 'pbkdf2_sha256$180000$LmA3RFL35Vi6$6HIUlKjmZWX0aTbZq0RxFTh3IWdWBYlecPANz6mfj8o=',
        is_superuser = 0,
@@ -45,12 +45,13 @@ SELECT DISTINCT
        last_name = ta.UsuarioNome,
        email = ''
 
-
-  FROM TEMP_IMPORTAR_SAE   ta JOIN cte_grade gra ON (gra.grade_nome = ta.UsuarioSerie)
-						LEFT JOIN auth_user xxx ON (xxx.username = ta.usuarioid)
-	WHERE xxx.id IS NULL 
+  FROM TMP_IMP_ALUNO_ava_08   ta JOIN cte_grade gra ON (gra.grade_nome = ta.UsuarioSerie)
+						LEFT JOIN auth_user xxx ON (xxx.username = CONVERT(VARCHAR(100),ta.usuarioid))
+	WHERE xxx.id IS NULL AND 
+	TA.USUARIOID NOT IN (SELECT USUARIOID FROM TMP_IMP_ALUNO_ERRO)
 
  -- COMMIT 
+ -- rollback 
 /*
 select count(1) from temp_alunos
 select count(1) from tmpimp_aluno_sae
@@ -106,10 +107,11 @@ select distinct ta.*, gra.grade_id , gra.grade_nome, tur.turma_id--,ctr.turma_id
 
 
 --   INSERT INTO hierarchy_hierarchy 
- SELECT TYPE = 'CLASS', VALUE = USUARIOSTURMA, TURMANOME, NULL FROM (
- SELECT DISTINCT TURMANOME, USUARIOTURMA
- FROM TEMP_ALUNOS_NOVO SAE LEFT JOIN hierarchy_hierarchy HIE ON (SAE.TURMANOME = HIE.NAME AND TYPE = 'CLASS')
- WHERE HIE.ID IS NULL ) AS TAB 
+ SELECT TYPE = 'CLASS', VALUE = USUARIOsTURMA, TURMANOME, NULL FROM (
+ SELECT DISTINCT TURMANOME, USUARIOsTURMA
+ FROM TMP_IMP_ALUNO_ava_08 SAE LEFT JOIN hierarchy_hierarchy HIE ON (SAE.TURMANOME = HIE.NAME AND TYPE = 'CLASS')
+ WHERE HIE.ID IS NULL and 
+      sae.USUARIOID NOT IN (SELECT USUARIOID FROM TMP_IMP_ALUNO_ERRO)) AS TAB 
 
 
 
@@ -117,3 +119,20 @@ select distinct ta.*, gra.grade_id , gra.grade_nome, tur.turma_id--,ctr.turma_id
   SELECT DISTINCT ESCOLANOME, ESCOLAID
  FROM TEMP_ALUNOS_NOVO SAE LEFT JOIN hierarchy_hierarchy HIE ON (SAE.ESCOLANOME = HIE.NAME AND TYPE = 'UNITY')
  WHERE HIE.ID IS NULL
+
+ select * from TEMP_ALUNOS_NOVO WHERE USUARIONOME = 'GILBERTO HENRIQUE GASPAR'
+
+
+ SELECT *, MOTIVO = 'ALUNO SE ENCONTRA EM MAIS DE UMA TURMA, NAO SEI COMO ME COMPORTAR NESTE CASO' 
+ --INTO TMP_IMP_ALUNO_08 
+ FROM TMP_IMP_ALUNO_ava_08 WHERE USUARIOID IN (
+ SELECT USUARIOiD
+ FROM TMP_IMP_ALUNO_ava_08 
+ GROUP BY USUARIOiD
+ HAVING COUNT(USUARIOstURMA)>1)
+
+
+insert into tmp_imp_aluno_erro 
+ select *, MOTIVO = 'ALUNO SE ENCONTRA EM MAIS DE UMA TURMA, NAO SEI COMO ME COMPORTAR NESTE CASO'  from TMP_IMP_ALUNO_ava_08
+ where usuarioserie like '%,%' and 
+       usuarioserie not in ('3ª série / Extensivo ,Extensivo')

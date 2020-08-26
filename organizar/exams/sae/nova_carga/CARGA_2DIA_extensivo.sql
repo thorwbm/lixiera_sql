@@ -1,19 +1,16 @@
 drop table  #temp_carga
 
-
-
 --------  CRIAR TABELA TEMPORARIA PARA CARGA -------------------------
-select exa.id as exam_id, usu.id as user_id, should_update_answers = 0, timeout = null, forced_status = null, created_at = cast( getdate() as datetime), updated_at = cast( getdate() as datetime), 
+select exa.id as exam_id, usu.id as user_id, should_update_answers = 0, timeout = null, forced_status = null, created_at = getdate(), updated_at = getdate(), 
        tmp.janela_aplicacao, etw.max_duration as max_duration, 
 	   start_time = cast (convert(varchar(10),tmp.janela_aplicacao,120) + ' ' +convert(varchar(8),etw.start_time,114) as datetime) ,	
-       end_time =  dateadd(day,1,tmp.janela_aplicacao),nome_escola = tmp.nome_escola_ava, serie = tmp.avaliacao_diagnostica
-
+       end_time =  dateadd(day,1,tmp.janela_aplicacao), nome_escola = tmp.nome_escola_ava, serie = tmp.avaliacao_diagnostica
 into #temp_carga
-from exam_collection exc join tmp_imp_escola_1dia tmp on ( case when  ltrim(rtrim(left(exc.name,charindex( '-',exc.name)-1))) = '3ª série' then 'extensivo' else ltrim(rtrim(left(exc.name,charindex( '-',exc.name)-1))) end= tmp.avaliacao_diagnostica and 
+from exam_collection exc join tmp_imp_escola_2dia tmp on  ( case when  ltrim(rtrim(left(exc.name,charindex( '-',exc.name)-1))) = '3ª série' then 'extensivo' else ltrim(rtrim(left(exc.name,charindex( '-',exc.name)-1))) end= tmp.avaliacao_diagnostica and 
                                                           reverse( ltrim(rtrim(left(reverse(exc.name),charindex( '-',reverse(exc.name))-1)))) = dia_aplicacao) 
 
-                                                         --(ltrim(rtrim(left(exc.name,charindex( '-',exc.name)-1))) = tmp.avaliacao_diagnostica and 
-                                                         -- reverse( ltrim(rtrim(left(reverse(exc.name),charindex( '-',reverse(exc.name))-1)))) = dia_aplicacao)
+                                                        --         (ltrim(rtrim(left(exc.name,charindex( '-',exc.name)-1))) = tmp.avaliacao_diagnostica and 
+                                                        --  reverse( ltrim(rtrim(left(reverse(exc.name),charindex( '-',reverse(exc.name))-1)))) = dia_aplicacao)
 						 join exam_exam exa on (exa.collection_id = exc.id) 
 						 join auth_user usu on (json_value(usu.extra, '$.hierarchy.unity.name') = tmp.nome_escola_ava and 
 						                        json_value(usu.extra, '$.hierarchy.grade.name') = tmp.avaliacao_diagnostica)
@@ -24,13 +21,26 @@ from exam_collection exc join tmp_imp_escola_1dia tmp on ( case when  ltrim(rtri
 					left join application_application xxx on (xxx.user_id = usu.id and 
 					                                          xxx.exam_id = exa.id)
 where charindex( '-',exc.name) > 0 AND 
-      XXX.id IS NULL  and 
       exc.name like '%Diagnóstica%' and 
+      XXX.id IS NULL  and 
 	  blk.nome_escola_ava is null 
 
-	  select * from #temp_carga where json_value(extra, '$.hierarchy.unity.name') = 'BAZAR TIA LEILA' and json_value(extra, '$.hierarchy.grade.name')= 'extensivo'
+	--  select tmp.*, exa.name
+	  delete car 
+	  from #temp_carga car join tmp_imp_escola_2dia tmp on (tmp.nome_escola_ava = car.nome_escola and tmp.avaliacao_diagnostica = car.serie and tmp.lingua_espanhol = 'bloquear') 
+	                                join exam_exam exa on (exa.id = car.exam_id)
+	  where exa.name like '%Língua Espanhola%'
 
-	  begin tran 
+
+	  	--  select tmp.*, exa.name 
+		  delete car 
+		  from #temp_carga car join tmp_imp_escola_2dia tmp on (tmp.nome_escola_ava = car.nome_escola and tmp.avaliacao_diagnostica = car.serie and tmp.lingua_ingles = 'bloquear') 
+	                                join exam_exam exa on (exa.id = car.exam_id)
+	  where exa.name like '%Língua Inglesa%'
+
+
+	  select distinct nome_escola, serie from #temp_carga order by 1
+begin tran 
 ------------------------------------------------------------------------------------------------------------------------
 -- CARGA NA APPLICATION_APPLICATION --
 insert into application_application (exam_id, user_id, should_update_answers, timeout, forced_status, created_at, updated_at)
@@ -64,6 +74,7 @@ select ite.position, app.id as application_id, ite.item_id as item_id, car.creat
 				  left join application_answer      xxx on (xxx.application_id = app.id and
 				                                            xxx.item_id        = ite.id)
 where xxx.id is null 
+
 
 
 -- commit 

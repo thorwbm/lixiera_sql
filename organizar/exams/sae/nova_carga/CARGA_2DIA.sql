@@ -35,6 +35,8 @@ where charindex( '-',exc.name) > 0 AND
 	                                join exam_exam exa on (exa.id = car.exam_id)
 	  where exa.name like '%Língua Inglesa%'
 
+
+	  select distinct nome_escola, serie from #temp_carga order by 1
 begin tran 
 ------------------------------------------------------------------------------------------------------------------------
 -- CARGA NA APPLICATION_APPLICATION --
