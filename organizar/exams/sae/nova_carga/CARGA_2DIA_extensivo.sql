@@ -1,5 +1,8 @@
 drop table  #temp_carga
 
+
+select * from tmp_imp_escola_2dia  where nome_escola_ava = 'SOCIEDADE EDUCACIONAL DOM OTAVIO AGUIAR LTDA'
+
 --------  CRIAR TABELA TEMPORARIA PARA CARGA -------------------------
 select exa.id as exam_id, usu.id as user_id, should_update_answers = 0, timeout = null, forced_status = null, created_at = getdate(), updated_at = getdate(), 
        tmp.janela_aplicacao, etw.max_duration as max_duration, 
@@ -8,9 +11,6 @@ select exa.id as exam_id, usu.id as user_id, should_update_answers = 0, timeout 
 into #temp_carga
 from exam_collection exc join tmp_imp_escola_2dia tmp on  ( case when  ltrim(rtrim(left(exc.name,charindex( '-',exc.name)-1))) = '3ª série' then 'extensivo' else ltrim(rtrim(left(exc.name,charindex( '-',exc.name)-1))) end= tmp.avaliacao_diagnostica and 
                                                           reverse( ltrim(rtrim(left(reverse(exc.name),charindex( '-',reverse(exc.name))-1)))) = dia_aplicacao) 
-
-                                                        --         (ltrim(rtrim(left(exc.name,charindex( '-',exc.name)-1))) = tmp.avaliacao_diagnostica and 
-                                                        --  reverse( ltrim(rtrim(left(reverse(exc.name),charindex( '-',reverse(exc.name))-1)))) = dia_aplicacao)
 						 join exam_exam exa on (exa.collection_id = exc.id) 
 						 join auth_user usu on (json_value(usu.extra, '$.hierarchy.unity.name') = tmp.nome_escola_ava and 
 						                        json_value(usu.extra, '$.hierarchy.grade.name') = tmp.avaliacao_diagnostica)
@@ -23,6 +23,7 @@ from exam_collection exc join tmp_imp_escola_2dia tmp on  ( case when  ltrim(rtr
 where charindex( '-',exc.name) > 0 AND 
       exc.name like '%Diagnóstica%' and 
       XXX.id IS NULL  and 
+	  tmp.nome_escola_ava = 'SOCIEDADE EDUCACIONAL DOM OTAVIO AGUIAR LTDA' and 
 	  blk.nome_escola_ava is null 
 
 	--  select tmp.*, exa.name
@@ -39,7 +40,7 @@ where charindex( '-',exc.name) > 0 AND
 	  where exa.name like '%Língua Inglesa%'
 
 
-	  select distinct nome_escola, serie from #temp_carga order by 1
+	  select  nome_escola, serie from #temp_carga order by 1
 begin tran 
 ------------------------------------------------------------------------------------------------------------------------
 -- CARGA NA APPLICATION_APPLICATION --
@@ -80,3 +81,6 @@ where xxx.id is null
 -- commit 
 -- rollback 
 
+select * from tmp_imp_bloquear where nome_escola_ava = 'ESC.COOPERATIVA EDUC.DA CIDAD DE S.ROQUE'
+select * from tmp_imp_escola_1dia where  nome_escola_ava = 'ESC.COOPERATIVA EDUC.DA CIDAD DE S.ROQUE'
+select * from tmp_imp_escola_2dia where  nome_escola_ava = 'ESC.COOPERATIVA EDUC.DA CIDAD DE S.ROQUE'

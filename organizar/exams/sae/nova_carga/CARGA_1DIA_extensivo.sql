@@ -1,9 +1,8 @@
-drop table  #temp_carga
 
 select *
---update tmp set tmp.avaliacao_diagnostica = 'extensivo'
-from tmp_imp_escola_2dia tmp
-where nome_escola_ava = 'SOCIEDADE EDUCACIONAL DOM OTAVIO AGUIAR LTDA' and avaliacao_diagnostica = '3ª série'
+from  tmp_imp_escola_1dia WHERE nome_escola_ava = 'COLEGIO JARDIM DANFER'
+
+drop table  #temp_carga
 
 --------  CRIAR TABELA TEMPORARIA PARA CARGA -------------------------
 select exa.id as exam_id, usu.id as user_id, should_update_answers = 0, timeout = null, forced_status = null, created_at = cast( getdate() as datetime), updated_at = cast( getdate() as datetime), 
@@ -15,8 +14,6 @@ into #temp_carga
 from exam_collection exc join tmp_imp_escola_1dia tmp on ( case when  ltrim(rtrim(left(exc.name,charindex( '-',exc.name)-1))) = '3ª série' then 'extensivo' else ltrim(rtrim(left(exc.name,charindex( '-',exc.name)-1))) end= tmp.avaliacao_diagnostica and 
                                                           reverse( ltrim(rtrim(left(reverse(exc.name),charindex( '-',reverse(exc.name))-1)))) = dia_aplicacao) 
 
-                                                         --(ltrim(rtrim(left(exc.name,charindex( '-',exc.name)-1))) = tmp.avaliacao_diagnostica and 
-                                                         -- reverse( ltrim(rtrim(left(reverse(exc.name),charindex( '-',reverse(exc.name))-1)))) = dia_aplicacao)
 						 join exam_exam exa on (exa.collection_id = exc.id) 
 						 join auth_user usu on (json_value(usu.extra, '$.hierarchy.unity.name') = tmp.nome_escola_ava and 
 						                        json_value(usu.extra, '$.hierarchy.grade.name') = tmp.avaliacao_diagnostica)
@@ -31,7 +28,8 @@ where charindex( '-',exc.name) > 0 AND
       exc.name like '%Diagnóstica%' and 
 	  blk.nome_escola_ava is null 
 
-	  select * from #temp_carga where json_value(extra, '$.hierarchy.unity.name') = 'BAZAR TIA LEILA' and json_value(extra, '$.hierarchy.grade.name')= 'extensivo'
+	  select distinct nome_escola from #temp_carga 
+	  where json_value(extra, '$.hierarchy.unity.name') = 'BAZAR TIA LEILA' and json_value(extra, '$.hierarchy.grade.name')= 'extensivo'
 
 	  begin tran 
 ------------------------------------------------------------------------------------------------------------------------

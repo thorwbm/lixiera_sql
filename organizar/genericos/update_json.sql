@@ -1,0 +1,3 @@
+declare @json varchar(1000) =
+'{"hierarchy": {"provider": {"value": "SAE", "name": "SAE"}, "unity": {"name": "Não informado", "value": "99999"}, "grade": {"name": "Não informado", "value": "99999"}, "class": {"name": "Não informado", "value": "99999"}}}'--
+update usu set  usu.extra = JSON_MODIFY(JSON_MODIFY(@json,  '$.hierarchy.unity.value', coo.escolaid),  '$.hierarchy.unity.name', coo.escolanome)
