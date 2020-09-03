@@ -6,27 +6,17 @@ SET @JSON_AUX = '{"hierarchy": {"provider": {"value": "SAE", "name": "SAE"}, '+ 
                               '"unity":{"value":"999999","name":"Não informado"}, '+ -- ESCOLA
                               '"class":{"value":"999999","name":"Não informado"}, '+  -- TURMA
                               '"grade":{"value":"999999","name":"Não informado"}}}'   -- GRADE
-  --BEGIN TRAN;
-
+  BEGIN TRAN;
+-- {"hierarchy": {"provider": {"value": "SAE", "name": "SAE"}, "unity": {"name": "Colégio Ouro Preto", "value": "34d3a52e96b0087c48b4a7d761133a57"}, "grade": {"name": "1ª série", "value": "BF6A4629-FC03-4162-9AC1-788ADD934D8C"}, "class": {"name": "1ª Médio A - 2017", "value": "a53e7ecf10db953bafb24a01c5dec6f7"}}}
+ ;
 WITH cte_grade AS (
-			SELECT distinct name AS grade_nome,  max(value)  AS grade_id
+			SELECT distinct name AS grade_nome, value AS grade_id
 			 from hierarchy_hierarchy WHERE type = 'grade'
-			 group by name, type
 )
-	,	cte_turma as (
-			SELECT distinct name AS Turma_nome, max(value) AS Turma_id
-			 from hierarchy_hierarchy WHERE type = 'class' 
-			 group by name, type
-)
-	,	cte_escola as (
-			SELECT distinct name AS escola_nome, max(value) AS escola_id
-			 from hierarchy_hierarchy WHERE type = 'unity' 
-			 group by name, type
-)
-select * from tmp_imp_aluno_prospect
---  INSERT INTO auth_user 
---        (password, is_superuser, username, is_staff, is_active, date_joined, name, public_identifier, 
---         extra, provider_id, created_at, updated_at, first_name, last_name, email)
+
+INSERT INTO auth_user 
+      (password, is_superuser, username, is_staff, is_active, date_joined, name, public_identifier, 
+       extra, provider_id, created_at, updated_at, first_name, last_name, email)
 SELECT DISTINCT   
        password = 'pbkdf2_sha256$180000$LmA3RFL35Vi6$6HIUlKjmZWX0aTbZq0RxFTh3IWdWBYlecPANz6mfj8o=',
        is_superuser = 0,
@@ -39,10 +29,10 @@ SELECT DISTINCT
        extra =   JSON_MODIFY(
 	                 JSON_MODIFY(
 	                     JSON_MODIFY(
-                             JSON_MODIFY(
-                                 JSON_MODIFY(
-                                    JSON_MODIFY(@JSON_AUX, '$.hierarchy.class.value', tur.turma_value), 
-                                     '$.hierarchy.class.name', tur.turma_name),
+                             JSON_MODIFY(@JSON_AUX,
+                            --     JSON_MODIFY(
+                                    -- JSON_MODIFY(@JSON_AUX, '$.hierarchy.class.value', tur.value), 
+                                    -- '$.hierarchy.class.name', tur.name),
                                  '$.hierarchy.grade.value', gra.grade_id),
                              '$.hierarchy.grade.name', gra.grade_nome), 
 					     '$.hierarchy.unity.name', ta.escolanome),
@@ -50,22 +40,20 @@ SELECT DISTINCT
        provider_id = 1,
        created_at = GETDATE(),
        updated_at = GETDATE(),
-       first_name = CASE WHEN charindex(' ',ta.nome) > 0 THEN left (ta.nome,  charindex(' ',ta.nome)-1)
-                                                             ELSE ta.nome END,
-       last_name = ta.nome,
+       first_name = CASE WHEN charindex(' ',UsuarioNome) > 0 THEN left (UsuarioNome,  charindex(' ',UsuarioNome)-1)
+                                                             ELSE UsuarioNome END,
+       last_name = ta.UsuarioNome,
        email = ''
 
-  FROM tmp_imp_aluno_prospect   ta JOIN cte_grade gra ON (gra.grade_nome = ta.serie_ano)
-                                   join cte_turma tur on (tur.turma_nome = ta.turma)
-								   join cte_escola esc on (esc.escola_nome = ta.escola)
-						LEFT JOIN auth_user xxx ON (xxx.name = ta.Nome)
-	WHERE xxx.id IS NULL  
-	
+  FROM TMP_IMP_ALUNO_ava_08   ta JOIN cte_grade gra ON (gra.grade_nome = ta.UsuarioSerie)
+						LEFT JOIN auth_user xxx ON (xxx.username = CONVERT(VARCHAR(100),ta.usuarioid))
+	WHERE xxx.id IS NULL AND 
+	TA.USUARIOID NOT IN (SELECT USUARIOID FROM TMP_IMP_ALUNO_ERRO)
 
  -- COMMIT 
  -- rollback 
 /*
-select * from tmp_imp_aluno_prospect
+select count(1) from temp_alunos
 select count(1) from tmpimp_aluno_sae
 select count(1) from tmp_aluno_nao_importado
 
@@ -146,5 +134,4 @@ select distinct ta.*, gra.grade_id , gra.grade_nome, tur.turma_id--,ctr.turma_id
 
 insert into tmp_imp_aluno_erro 
  select *, MOTIVO = 'ALUNO SE ENCONTRA EM MAIS DE UMA TURMA, NAO SEI COMO ME COMPORTAR NESTE CASO'  from TMP_IMP_ALUNO_ava_08
- where usuarioserie like '%,%' and 
-       usuarioserie not in ('3ª série / Extensivo ,Extensivo')
+ where usuariose

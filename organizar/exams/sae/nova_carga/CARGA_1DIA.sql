@@ -1,9 +1,9 @@
 drop table  #temp_carga
 
-select *
+--select *
 --update tmp set tmp.avaliacao_diagnostica = 'extensivo'
-from tmp_imp_escola_2dia tmp
-where nome_escola_ava = 'SOCIEDADE EDUCACIONAL DOM OTAVIO AGUIAR LTDA' and avaliacao_diagnostica = '3ª série'
+--from tmp_imp_escola_2dia tmp
+--where nome_escola_ava = 'SOCIEDADE EDUCACIONAL DOM OTAVIO AGUIAR LTDA' and avaliacao_diagnostica = '3ª série'
 
 --------  CRIAR TABELA TEMPORARIA PARA CARGA -------------------------
 select exa.id as exam_id, usu.id as user_id, should_update_answers = 0, timeout = null, forced_status = null, created_at = cast( getdate() as datetime), updated_at = cast( getdate() as datetime), 
@@ -12,14 +12,15 @@ select exa.id as exam_id, usu.id as user_id, should_update_answers = 0, timeout 
        end_time =  dateadd(day,1,tmp.janela_aplicacao),nome_escola = tmp.nome_escola_ava, serie = tmp.avaliacao_diagnostica
 
 into #temp_carga
-from exam_collection exc join tmp_imp_escola_1dia tmp on ( case when  ltrim(rtrim(left(exc.name,charindex( '-',exc.name)-1))) = '3ª série' then 'extensivo' else ltrim(rtrim(left(exc.name,charindex( '-',exc.name)-1))) end= tmp.avaliacao_diagnostica and 
-                                                          reverse( ltrim(rtrim(left(reverse(exc.name),charindex( '-',reverse(exc.name))-1)))) = dia_aplicacao) 
+from exam_collection exc join tmp_imp_escola_extra_1dia tmp on-- ( case when  ltrim(rtrim(left(exc.name,charindex( '-',exc.name)-1))) = '3ª série' then 'extensivo' else ltrim(rtrim(left(exc.name,charindex( '-',exc.name)-1))) end= tmp.avaliacao_diagnostica and 
+                                                        --  reverse( ltrim(rtrim(left(reverse(exc.name),charindex( '-',reverse(exc.name))-1)))) = dia_aplicacao) 
 
-                                                         --(ltrim(rtrim(left(exc.name,charindex( '-',exc.name)-1))) = tmp.avaliacao_diagnostica and 
-                                                         -- reverse( ltrim(rtrim(left(reverse(exc.name),charindex( '-',reverse(exc.name))-1)))) = dia_aplicacao)
+                                                         (ltrim(rtrim(left(exc.name,charindex( '-',exc.name)-1))) = tmp.avaliacao_diagnostica and 
+                                                          reverse( ltrim(rtrim(left(reverse(exc.name),charindex( '-',reverse(exc.name))-1)))) = dia_aplicacao)
 						 join exam_exam exa on (exa.collection_id = exc.id) 
 						 join auth_user usu on (json_value(usu.extra, '$.hierarchy.unity.name') = tmp.nome_escola_ava and 
-						                        json_value(usu.extra, '$.hierarchy.grade.name') = tmp.avaliacao_diagnostica)
+						                       -- json_value(usu.extra, '$.hierarchy.grade.name') = tmp.avaliacao_diagnostica)
+												 json_value(usu.extra, '$.hierarchy.grade.name') like '%'+ tmp.avaliacao_diagnostica + '%')
 					left join tmp_imp_bloquear blk on (blk.nome_escola_ava = tmp.nome_escola_ava and 
 					                                   blk.simulado_bimestral = tmp.avaliacao_diagnostica and 
 													   blk.janela_aplicacao = 'BLOQUEAR')
@@ -29,9 +30,11 @@ from exam_collection exc join tmp_imp_escola_1dia tmp on ( case when  ltrim(rtri
 where charindex( '-',exc.name) > 0 AND 
       XXX.id IS NULL  and 
       exc.name like '%Diagnóstica%' and 
+	 -- usu.public_identifier  in ('32114efb08791124301ef462a249a570') and  
+	 tmp.nome_escola_ava = 'Colégio O Saber' and 
 	  blk.nome_escola_ava is null 
 
-	  select * from #temp_carga where json_value(extra, '$.hierarchy.unity.name') = 'BAZAR TIA LEILA' and json_value(extra, '$.hierarchy.grade.name')= 'extensivo'
+	  select distinct nome_escola, serie from #temp_carga  -- where json_value(extra, '$.hierarchy.unity.name') = 'BAZAR TIA LEILA' and json_value(extra, '$.hierarchy.grade.name')= 'extensivo'
 
 	  begin tran 
 ------------------------------------------------------------------------------------------------------------------------
