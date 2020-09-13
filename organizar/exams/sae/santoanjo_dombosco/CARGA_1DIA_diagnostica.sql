@@ -1,48 +1,30 @@
+select distinct * from tmp_imp_carga_aluno_db_sa WHERE ESCOLA_NOME = 'COLÉGIO DOM BOSCO (BALSAS)'
+--{"hierarchy": {"provider": {"value": "SAE", "name": "SAE"}, "unity":{"value":"d07e0a07387e91cde8c81768443f235b","name":"Centro de Integração Escolar Dom Bosco"}, "class":{"value":"79bd2ffcc8cf4c8fa328d2fafd754192","name":"3º MEGA"}, "grade":{"value":"4D717306-4F4E-4F1D-B703-6C391C7B25DB","name":"Extensivo Mega"}}}
 drop table  #temp_carga
-
 --------  CRIAR TABELA TEMPORARIA PARA CARGA -------------------------
-select exa.id as exam_id, usu.id as user_id, should_update_answers = 0, timeout = null, forced_status = null, created_at = getdate(), updated_at = getdate(), 
-       tmp.SERIE, etw.max_duration as max_duration, 
-	   --start_time = cast (convert(varchar(10),tmp.janela_aplicacao,120) + ' ' +convert(varchar(8),etw.start_time,114) as datetime) ,	
-       --end_time =  dateadd(day,1,tmp.janela_aplicacao), 
-	   nome_escola = tmp.ESCOLA
+select distinct  exa.id as exam_id, usu.id as user_id, should_update_answers = 0, timeout = null, forced_status = null, 
+       created_at = cast( getdate() as datetime), updated_at = cast( getdate() as datetime), 
+       tmp.grade_nome, escola_nome = tmp.escola_nome, json_value(usu.extra, '$.hierarchy.grade.name') as serie_aluno, exa.name as exame_nome
+
 into #temp_carga
-from exam_collection exc join tmp_imp_carga_final tmp on (ltrim(rtrim(left(exc.name,charindex( '-',exc.name)-1))) = tmp.SERIE and 
-                                                          reverse( ltrim(rtrim(left(reverse(exc.name),charindex( '-',reverse(exc.name))-1)))) = DIA)
+--  select *
+from exam_collection exc join tmp_imp_carga_aluno_db_sa tmp on (charindex( '-',exc.name) > 0 and 
+                                                                ltrim(rtrim(left(exc.name,charindex( '-',exc.name)-1))) = case when tmp.grade_nome in ('extensivo','extensivo mega') then '3ª série' else tmp.grade_nome end)
 						 join exam_exam exa on (exa.collection_id = exc.id) 
-						 join auth_user usu on (json_value(usu.extra, '$.hierarchy.unity.name') = tmp.escola and 
-						                      --  case when json_value(usu.extra, '$.hierarchy.grade.name') in ('extensivo','extensivo mega') then '3ª série' else json_value(usu.extra, '$.hierarchy.grade.name') end = tmp.serie)
-												 json_value(usu.extra, '$.hierarchy.grade.name') like '%'+ tmp.serie + '%')
-					left join tmp_imp_bloquear blk on (blk.nome_escola_ava = tmp.ESCOLA and 
-					                                   blk.simulado_bimestral = tmp.SERIE and 
-													   blk.janela_aplicacao = 'BLOQUEAR')
-					left join exam_timewindow etw on (etw.exam_id = exa.id)
+						 join auth_user usu on (json_value(usu.extra, '$.hierarchy.unity.name') = tmp.escola_nome and 
+						                        usu.public_identifier = tmp.aluno_id and
+			--			                       -- case when json_value(usu.extra, '$.hierarchy.grade.name') in ('extensivo','extensivo mega') then '3ª série' else json_value(usu.extra, '$.hierarchy.grade.name') end = tmp.grade_nome)
+											    json_value(usu.extra, '$.hierarchy.grade.name') = tmp.grade_nome)					
 					left join application_application xxx on (xxx.user_id = usu.id and 
 					                                          xxx.exam_id = exa.id)
-where charindex( '-',exc.name) > 0 AND 
-      exc.name like '%Diagnóstica%' and 
-	  usu.public_identifier  in ('0eaba8bd7062dbd45ee7c6006c86e6a8') and 
-	tmp.ESCOLA = 'CEMOR' and 
-      XXX.id IS NULL  and 
-	  TMP.DIA = '2º Dia' AND 
-	  blk.nome_escola_ava is null 
+where exc.name like '%Diagnóstica%' and exc.name not like '%prospect%' and       
+	  reverse( ltrim(rtrim(left(reverse(exc.name),charindex( '-',reverse(exc.name))-1)))) = '2º Dia'  and
+      XXX.id IS NULL  
 
-	--  select tmp.*, exa.name
-	  delete car 
-	  from #temp_carga car join tmp_imp_escola_2dia tmp on (tmp.nome_escola_ava = car.nome_escola and tmp.avaliacao_diagnostica = car.serie and tmp.lingua_espanhol = 'bloquear') 
-	                                join exam_exam exa on (exa.id = car.exam_id)
-	  where exa.name like '%Língua Espanhola%'
+	  
+	  select distinct escola_nome, exame_nome,  grade_nome from #temp_carga where user_id = 276881  -- where json_value(extra, '$.hierarchy.unity.name') = 'BAZAR TIA LEILA' and json_value(extra, '$.hierarchy.grade.name')= 'extensivo'
 
-
-	  	--  select tmp.*, exa.name 
-		  delete car 
-		  from #temp_carga car join tmp_imp_escola_2dia tmp on (tmp.nome_escola_ava = car.nome_escola and tmp.avaliacao_diagnostica = car.serie and tmp.lingua_ingles = 'bloquear') 
-	                                join exam_exam exa on (exa.id = car.exam_id)
-	  where exa.name like '%Língua Inglesa%'
-
-
-	  select distinct nome_escola, serie, * from #temp_carga order by 1
-begin tran 
+	  begin tran 
 ------------------------------------------------------------------------------------------------------------------------
 -- CARGA NA APPLICATION_APPLICATION --
 insert into application_application (exam_id, user_id, should_update_answers, timeout, forced_status, created_at, updated_at)
@@ -78,7 +60,16 @@ select ite.position, app.id as application_id, ite.item_id as item_id, car.creat
 where xxx.id is null 
 
 
-
--- commit 
+-- commit
 -- rollback 
 
+
+
+select distinct apa.*
+  from VW_AGENDAMENTO_PROVA_ALUNO apa join tmp_imp_carga_aluno_db_sa tmp on (apa.ESCOLA_NOME = tmp.escola_nome and 
+                                                                             apa.aluno_nome  = tmp.aluno_nome)
+									  join auth_user usu on (apa.usuario_id = usu.id and
+									                         usu.public_identifier = tmp.aluno_id)
+where
+apa.prova_nome like '%Diagnóstica%' and apa.prova_nome not like '%prospect%' 
+and apa.usuario_id = 276367

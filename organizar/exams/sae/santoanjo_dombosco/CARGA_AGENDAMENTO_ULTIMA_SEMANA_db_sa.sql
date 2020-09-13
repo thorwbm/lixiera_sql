@@ -2,38 +2,29 @@ select distinct serie from TMP_IMP_ESCOLA_AGENDAMENTO_ULTIMA_SEMANA where serie 
 select reverse( ltrim(rtrim(left(reverse(exc.name),charindex( '-',reverse(exc.name))-1)))),* 
 from exam_collection exc where exc.name like 'Desafio SAE % 3°BI%'
 
-select * from TMP_IMP_ESCOLA_AGENDAMENTO_ULTIMA_SEMANA where escola_nome = 'CENTRO CULTURAL MANILHA'
+
 
 drop table  #temp_carga
 
 --------  CRIAR TABELA TEMPORARIA PARA CARGA -------------------------
 select exa.id as exam_id, usu.id as user_id, should_update_answers = 0, timeout = null, forced_status = null, 
        created_at = cast( getdate() as datetime), updated_at = cast( getdate() as datetime), 
-       tmp.serie, etw.max_duration as max_duration, 
-	   ESCOLA_NOME = tmp.ESCOLA_NOME, exc.name as collection_nome
+	   ESCOLA_NOME = tmp.ESCOLA_NOME, exc.name as collection_nome, tmp.grade_nome
 into #temp_carga
-from exam_collection exc join TMP_IMP_ESCOLA_AGENDAMENTO_ULTIMA_SEMANA tmp on (exc.name like 'Desafio SAE % 3°BI%'   and 
-                                                                 reverse( ltrim(rtrim(left(reverse(exc.name),charindex( '-',reverse(exc.name))-1)))) =
-																 case when TMP.SERIE in ('extensivo','extensivo mega') then '3ª série' else  TMP.SERIE end )
+
+from exam_collection exc join tmp_imp_carga_aluno_db_sa tmp on  (charindex( '-',exc.name) > 0 and exc.name like 'Desafio SAE % 3°BI%'   and 
+                                                                reverse( ltrim(rtrim(left(reverse(exc.name),charindex( '-',reverse(exc.name))-1))))  = 
+																case when tmp.grade_nome in ('extensivo','extensivo mega') then '3ª série' else tmp.grade_nome end)						 
 						 join exam_exam exa on (exa.collection_id = exc.id) 
 						 join auth_user usu on (json_value(usu.extra, '$.hierarchy.unity.name') = tmp.escola_NOME and 
-						                         json_value(usu.extra, '$.hierarchy.grade.name') = tmp.serie)
-						                       -- case when json_value(usu.extra, '$.hierarchy.grade.name') in ('extensivo','extensivo mega') then '3ª série' else json_value(usu.extra, '$.hierarchy.grade.name') end = tmp.serie)						
-					left join exam_timewindow etw on (etw.exam_id = exa.id)
-					LEFT JOIN TMP_IMP_ESCOLA_BLOQUEADA BLK ON (BLK.ESCOLA_NOME = TMP.ESCOLA_NOME AND 
-					                                           BLK.SERIE = TMP.SERIE AND 
-															   BLK.PROCESSO = TMP.PROCESSO)
+						                        usu.public_identifier = tmp.ALUNO_ID and
+						                         json_value(usu.extra, '$.hierarchy.grade.name') = tmp.grade_nome)
+					left join exam_timewindow etw on (etw.exam_id = exa.id)					
 					left join application_application xxx on (xxx.user_id = usu.id and 
 					                                          xxx.exam_id = exa.id)
-where charindex( '-',exc.name) > 0 AND 
-      exc.name like 'Desafio SAE % 3°BI%' and 
-	 -- tmp.ESCOLA_NOME = 'Curso e Colégio Acesso' and 	  
-	  --TMP.SERIE IN ('extensivo','extensivo mega','3ª série') AND 
-	  (json_value(usu.extra, '$.hierarchy.unity.value') = '6db64e812c6b1a6ede239eacf2eb48fa' and 
-      XXX.id IS NULL  and
-	  BLK.ESCOLA_NOME IS NULL   
+where XXX.id IS NULL   
 
-	  select distinct ESCOLA_NOME, serie, collection_nome from #temp_carga  
+	  select distinct ESCOLA_NOME, grade_nome, collection_nome from #temp_carga  order by 1,2
 
 	  begin tran 
 ------------------------------------------------------------------------------------------------------------------------
@@ -76,5 +67,29 @@ where xxx.id is null
  --commit
 -- rollback 
 
+select  apa.PROVA_NOME, apa.ESCOLA_NOME, apa.EXAME_NOME, apa.GRADE_NOME, apa.ALUNO_NOME, apa.EXA_TWD_INICIO, 
+       apa.EXA_TWD_TERMINO, apa.EXA_TWD_DURACAO,        apa.APP_TWD_INICIO, apa.APP_TWD_TERMINO, apa.APP_TWD_DURACAO--, 
+	  -- apa.application_application_id
+
+	  select distinct apa.EXA_TWD_TERMINO
+from tmp_imp_carga_aluno_db_sa car join VW_AGENDAMENTO_PROVA_ALUNO apa on (car.ALUNO_NOME  = apa.ALUNO_NOME and 
+                                                                           car.ESCOLA_NOME = apa.ESCOLA_NOME )
+where --apa.PROVA_NOME like 'Desafio SAE % 3°BI%' and 
+apa.escola_nome = 'COLÉGIO DOM BOSCO (BALSAS)'
+order by 2,3,5
+
+
+
+select id into #tmp_carga from application_application where id in (select distinct --apa.PROVA_NOME, apa.ESCOLA_NOME, apa.EXAME_NOME, apa.GRADE_NOME, apa.ALUNO_NOME, apa.EXA_TWD_INICIO, 
+       --apa.EXA_TWD_TERMINO, apa.EXA_TWD_DURACAO,        apa.APP_TWD_INICIO, apa.APP_TWD_TERMINO, apa.APP_TWD_DURACAO, 
+	   apa.application_application_id
+from tmp_imp_carga_aluno_db_sa car join VW_AGENDAMENTO_PROVA_ALUNO apa on (car.ALUNO_NOME  = apa.ALUNO_NOME and 
+                                                                           car.ESCOLA_NOME = apa.ESCOLA_NOME )
+where apa.PROVA_NOME like 'Desafio SAE % 3°BI%') and cast(created_at as date) = '2020-09-11'
+
+select * from auth_user where id in (151896, 269337, 277300)
+
+select * delete ans from #tmp_carga tem join application_answer ans on (tem.id = ans.application_id)
+select * delete app from #tmp_carga tem join application_application app on (tem.id = app.id)
 
 

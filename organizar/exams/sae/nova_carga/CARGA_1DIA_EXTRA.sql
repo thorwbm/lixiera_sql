@@ -32,8 +32,8 @@ from exam_collection exc join tmp_imp_carga_final tmp on-- ( case when  ltrim(rt
 where charindex( '-',exc.name) > 0 AND 
       XXX.id IS NULL  and 
       exc.name like '%Diagnóstica%' and 
-	 -- usu.public_identifier  in ('32114efb08791124301ef462a249a570') and  
-	-- tmp.escola = 'Colégio União' and 
+	  usu.public_identifier  in ('0eaba8bd7062dbd45ee7c6006c86e6a8') and  
+	 tmp.escola = 'CEMOR' and 
 	 tmp.dia = '1º Dia'  and 
 	  blk.nome_escola_ava is null 
 
@@ -42,7 +42,7 @@ where charindex( '-',exc.name) > 0 AND
 	  from auth_user usu where json_value(usu.extra, '$.hierarchy.unity.name') = 'COLEGIO FLAMBOYANTS'
 	  
 	  select * from tmp_imp_carga_final where escola ='Colégio União'
-	  select distinct nome_escola, serie, serie_aluno from #temp_carga  -- where json_value(extra, '$.hierarchy.unity.name') = 'BAZAR TIA LEILA' and json_value(extra, '$.hierarchy.grade.name')= 'extensivo'
+	  select distinct nome_escola, serie, serie_aluno, * from #temp_carga  -- where json_value(extra, '$.hierarchy.unity.name') = 'BAZAR TIA LEILA' and json_value(extra, '$.hierarchy.grade.name')= 'extensivo'
 
 	  begin tran 
 ------------------------------------------------------------------------------------------------------------------------
@@ -82,3 +82,19 @@ where xxx.id is null
 
 -- commit
 -- rollback 
+
+
+
+select * from VW_AGENDAMENTO_PROVA_ALUNO
+where escola_nome = 'CEMOR' and
+      prova_nome = '5º ano - Diagnóstica 2/2020 - 1º dia'
+
+
+	  select * from auth_user 
+	  where name = 'Lucas Gabriel Abdala Bispo'
+
+	  select * from tmp_imp_carga_final where escola = 'CEMOR'
+
+	  insert into tmp_imp_carga_final
+	  select 'CEMOR', '5º ano','2º Dia' union 
+      select 'CEMOR', '5º ano','1º Dia'
