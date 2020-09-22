@@ -1,3 +1,4 @@
+
 drop table  #temp_carga
 
 --------  CRIAR TABELA TEMPORARIA PARA CARGA -------------------------
@@ -20,11 +21,10 @@ from exam_collection exc join tmp_imp_carga_final tmp on (ltrim(rtrim(left(exc.n
 					left join application_application xxx on (xxx.user_id = usu.id and 
 					                                          xxx.exam_id = exa.id)
 where charindex( '-',exc.name) > 0 AND 
-      exc.name like '%Diagnóstica%' and 
-	  usu.public_identifier  in ('0eaba8bd7062dbd45ee7c6006c86e6a8') and 
-	tmp.ESCOLA = 'CEMOR' and 
-      XXX.id IS NULL  and 
+      exc.name like '%Diagnóstica%' and exc.name not like '%prospect%' and  
+	 tmp.escola =  'Centro de Integração Escolar Dom Bosco' and
 	  TMP.DIA = '2º Dia' AND 
+      XXX.id IS NULL  and 
 	  blk.nome_escola_ava is null 
 
 	--  select tmp.*, exa.name

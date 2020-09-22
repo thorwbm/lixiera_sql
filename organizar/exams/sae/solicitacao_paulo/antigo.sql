@@ -1,0 +1,30 @@
+DROP TABLE #TEMP_CARGA
+
+
+		--INSERT INTO TMP_VETOR_RESPOSTA
+		select DISTINCT APA.USUARIO_ID, APA.EXAME_ID, APA.PROVA_ID, APA.APPLICATION_ID 
+		  INTO #TEMP_CARGA
+		  from VW_AGENDAMENTO_PROVA_ALUNO_CODIGO APA LEFT join TMP_VETOR_RESPOSTA vet WITH(NOLOCK) on (vet.COLLECTION_ID = APA.PROVA_ID and
+																									   vet.USER_ID       = APA.USUARIO_ID and 
+																									   vet.EXAM_ID       = APA.EXAME_id)
+		where APA.prova_nome like '%2%bi%' AND 
+			  VET.EXAM_ID IS NULL 
+			  ORDER BY 1,3,2
+
+		-------- CONTROLE DO WHILE --------------------
+		--INSERT INTO TMP_VETOR_RESPOSTA
+		SELECT DISTINCT car.*,
+			   dbo.FN_GABARITO_ALUNO(car.APPLICATION_ID) AS GABARITO_ALUNO, 
+			   dbo.FN_GABARITO_EXAME(examE_id) AS GABARITO_EXAME 		
+		FROM #TEMP_CARGA CAR LEFT JOIN TMP_VETOR_RESPOSTA RES ON (CAR.APPLICATION_ID = res.application_id)
+		WHERE USUARIO_ID = 104313 and 
+		      res.user_id is null 
+		ORDER BY 1,3,2
+
+
+
+SELECT *  FROM TMP_VETOR_RESPOSTA  WHERE user_id = 104313
+		ORDER BY 1,3,2
+
+
+		select * from ap

@@ -7,13 +7,16 @@ drop table  #temp_carga
 select exa.id as exam_id, usu.id as user_id, should_update_answers = 0, timeout = null, forced_status = null, created_at = getdate(), updated_at = getdate(), 
        tmp.janela_aplicacao, etw.max_duration as max_duration, 
 	   start_time = cast (convert(varchar(10),tmp.janela_aplicacao,120) + ' ' +convert(varchar(8),etw.start_time,114) as datetime) ,	
-       end_time =  dateadd(day,1,tmp.janela_aplicacao), nome_escola = tmp.nome_escola_ava, serie = tmp.avaliacao_diagnostica
+       end_time =  dateadd(day,1,tmp.janela_aplicacao), nome_escola = tmp.nome_escola_ava, serie = tmp.avaliacao_diagnostica, exc.name as prova_nome
 into #temp_carga
-from exam_collection exc join tmp_imp_escola_extra_2dia tmp on  ( case when  ltrim(rtrim(left(exc.name,charindex( '-',exc.name)-1))) = '3ª série' then 'extensivo' else ltrim(rtrim(left(exc.name,charindex( '-',exc.name)-1))) end= tmp.avaliacao_diagnostica and 
+from exam_collection exc join tmp_imp_escola_2dia tmp on -- ( case when  ltrim(rtrim(left(exc.name,charindex( '-',exc.name)-1))) = '3ª série' then 'extensivo' else ltrim(rtrim(left(exc.name,charindex( '-',exc.name)-1))) end= tmp.avaliacao_diagnostica and 
+                                                         -- reverse( ltrim(rtrim(left(reverse(exc.name),charindex( '-',reverse(exc.name))-1)))) = dia_aplicacao) 
+														   (ltrim(rtrim(left(exc.name,charindex( '-',exc.name)-1)))   = tmp.avaliacao_diagnostica and 
                                                           reverse( ltrim(rtrim(left(reverse(exc.name),charindex( '-',reverse(exc.name))-1)))) = dia_aplicacao) 
 						 join exam_exam exa on (exa.collection_id = exc.id) 
 						 join auth_user usu on (json_value(usu.extra, '$.hierarchy.unity.name') = tmp.nome_escola_ava and 
-						                        json_value(usu.extra, '$.hierarchy.grade.name') = tmp.avaliacao_diagnostica)
+						                         case when json_value(usu.extra, '$.hierarchy.grade.name') in ('extensivo','extensivo mega') then '3ª série' else json_value(usu.extra, '$.hierarchy.grade.name') end = tmp.avaliacao_diagnostica)											  
+												--json_value(usu.extra, '$.hierarchy.grade.name') = tmp.avaliacao_diagnostica)
 					left join tmp_imp_bloquear blk on (blk.nome_escola_ava = tmp.nome_escola_ava and 
 					                                   blk.simulado_bimestral = tmp.avaliacao_diagnostica and 
 													   blk.janela_aplicacao = 'BLOQUEAR')
@@ -21,10 +24,10 @@ from exam_collection exc join tmp_imp_escola_extra_2dia tmp on  ( case when  ltr
 					left join application_application xxx on (xxx.user_id = usu.id and 
 					                                          xxx.exam_id = exa.id)
 where charindex( '-',exc.name) > 0 AND 
-      exc.name like '%Diagnóstica%' and 
+      exc.name like '%Diagnóstica%' and exc.name not like '%prospect%' and 
       XXX.id IS NULL  and 
 	 -- usu.public_identifier  in ('32114efb08791124301ef462a249a570') and 
-	  tmp.nome_escola_ava =  'Colégio O Saber' and 
+	  tmp.nome_escola_ava =   'OMEGA SISTEMA DE ENSINO' and 
 	  blk.nome_escola_ava is null 
 
 	--  select tmp.*, exa.name
@@ -41,7 +44,9 @@ where charindex( '-',exc.name) > 0 AND
 	  where exa.name like '%Língua Inglesa%'
 
 
-	  select  nome_escola, serie from #temp_carga order by 1
+	  select distinct prova_nome, nome_escola, serie from #temp_carga order by 1
+
+
 begin tran 
 ------------------------------------------------------------------------------------------------------------------------
 -- CARGA NA APPLICATION_APPLICATION --
@@ -79,5 +84,5 @@ where xxx.id is null
 
 
 
--- commit 
+ commit 
 -- rollback 

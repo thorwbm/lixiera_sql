@@ -1,5 +1,9 @@
 drop table  #temp_carga
 
+
+select * from tmp_imp_escola_2dia where nome_escola_ava = 'Centro de Integração Escolar Dom Bosco'
+
+
 --------  CRIAR TABELA TEMPORARIA PARA CARGA -------------------------
 select exa.id as exam_id, usu.id as user_id, should_update_answers = 0, timeout = null, forced_status = null, created_at = getdate(), updated_at = getdate(), 
        tmp.janela_aplicacao, etw.max_duration as max_duration, 

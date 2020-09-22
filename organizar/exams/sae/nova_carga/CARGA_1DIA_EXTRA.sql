@@ -3,7 +3,7 @@ drop table  #temp_carga
 --select *
 --update tmp set tmp.avaliacao_diagnostica = 'extensivo'
 --from tmp_imp_escola_2dia tmp
---where nome_escola_ava = 'SOCIEDADE EDUCACIONAL DOM OTAVIO AGUIAR LTDA' and avaliacao_diagnostica = '3ª série'
+--where nome_escola_ava = 'Centro de Integração Escolar Dom Bosco' and avaliacao_diagnostica = '3ª série'
 
 --------  CRIAR TABELA TEMPORARIA PARA CARGA -------------------------
 select exa.id as exam_id, usu.id as user_id, should_update_answers = 0, timeout = null, forced_status = null, created_at = cast( getdate() as datetime), updated_at = cast( getdate() as datetime), 
@@ -30,11 +30,10 @@ from exam_collection exc join tmp_imp_carga_final tmp on-- ( case when  ltrim(rt
 					left join application_application xxx on (xxx.user_id = usu.id and 
 					                                          xxx.exam_id = exa.id)
 where charindex( '-',exc.name) > 0 AND 
-      XXX.id IS NULL  and 
-      exc.name like '%Diagnóstica%' and 
-	  usu.public_identifier  in ('0eaba8bd7062dbd45ee7c6006c86e6a8') and  
-	 tmp.escola = 'CEMOR' and 
+      exc.name like '%Diagnóstica%' and exc.name not like '%prospect%' and  
+	 tmp.escola =  'Centro de Integração Escolar Dom Bosco' and 
 	 tmp.dia = '1º Dia'  and 
+      XXX.id IS NULL  and 
 	  blk.nome_escola_ava is null 
 
 	  select distinct --json_value(usu.extra, '$.hierarchy.unity.name') as escola, 

@@ -1,8 +1,11 @@
 
+SELECT TOP 50 * FROM TMP_IMP_ESCOLA_BLOQUEADA where ESCOLA_NOME like '%Batista Bet%'
+
+
 select *
 --update tmp set tmp.serie = '3ª série'
-from TMP_IMP_ESCOLA_AGENDAMENTO tmp where escola_nome = 'COLEGIO EVOLUCAO' and serie = 'extensivo'
-SELECT TOP 50 * FROM TMP_IMP_ESCOLA_BLOQUEADA where ESCOLA_NOME = 'COLEGIO EVOLUCAO'
+from TMP_IMP_ESCOLA_AGENDAMENTO tmp where escola_nome like 'Centro de Integração Escolar Dom Bosco'  and serie = 'extensivo'
+SELECT TOP 50 * FROM TMP_IMP_ESCOLA_BLOQUEADA where ESCOLA_NOME = 'Colégio Batista Betânia' 
 
 drop table  #temp_carga
 
@@ -20,20 +23,20 @@ from exam_collection exc join TMP_IMP_ESCOLA_AGENDAMENTO tmp on (EXC.NAME like '
 																 case when TMP.SERIE in ('extensivo','extensivo mega') then '3ª série' else  TMP.SERIE end )
 						 join exam_exam exa on (exa.collection_id = exc.id) 
 						 join auth_user usu on (json_value(usu.extra, '$.hierarchy.unity.name') = tmp.escola_NOME and 
-						                         json_value(usu.extra, '$.hierarchy.grade.name') = tmp.serie)
-						                       -- case when json_value(usu.extra, '$.hierarchy.grade.name') in ('extensivo','extensivo mega') then '3ª série' else json_value(usu.extra, '$.hierarchy.grade.name') end = tmp.serie)						
+						                        -- json_value(usu.extra, '$.hierarchy.grade.name') = tmp.serie)
+						                        case when json_value(usu.extra, '$.hierarchy.grade.name') in ('extensivo','extensivo mega') then '3ª série' else json_value(usu.extra, '$.hierarchy.grade.name') end = tmp.serie)						
 					left join exam_timewindow etw on (etw.exam_id = exa.id)
-					--LEFT JOIN TMP_IMP_ESCOLA_BLOQUEADA BLK ON (BLK.ESCOLA_NOME = TMP.ESCOLA_NOME AND 
-					--                                           BLK.SERIE = TMP.SERIE AND 
-					--										   BLK.PROCESSO = TMP.PROCESSO)
+					LEFT JOIN TMP_IMP_ESCOLA_BLOQUEADA BLK ON (BLK.ESCOLA_NOME = TMP.ESCOLA_NOME AND 
+					                                           BLK.SERIE = TMP.SERIE AND 
+															   BLK.PROCESSO = TMP.PROCESSO)
 					left join application_application xxx on (xxx.user_id = usu.id and 
 					                                          xxx.exam_id = exa.id)
 where charindex( '-',exc.name) > 0 AND 
 	 -- tmp.SERIE = '3ª série' and 
       exc.name like 'Desafio SAE % 3°BI%' and 
-	  --tmp.ESCOLA_NOME = 'CENTRO CULTURAL MANILHA' and 
+	  tmp.ESCOLA_NOME = 'Colégio Batista Betania' and 
 	  --TMP.SERIE IN ('extensivo','extensivo mega','3ª série') AND 
-	  json_value(usu.extra, '$.hierarchy.unity.value') = '6db64e812c6b1a6ede239eacf2eb48fa' and 
+	  --json_value(usu.extra, '$.hierarchy.unity.value') = '6db64e812c6b1a6ede239eacf2eb48fa' and 
       XXX.id IS NULL  and 
 	  BLK.ESCOLA_NOME IS NULL  
 	  -----------------------------------------
@@ -98,8 +101,19 @@ select distinct  ite.position, app.id as application_id, ite.item_id as item_id,
 where xxx.id is null 
 
 
- --commit
+ commit
 -- rollback 
 
 
+select * 
+--  update hie set hie.name = 'Colégio Batista Betânia' 
+from hierarchy_hierarchy hie where name = 'Colégio Batista Betania' 
 
+select  distinct escola_nome from vw_usuario where escola_nome like 'Colégio Batista Bet%nia'  
+
+
+
+select usu.extra, json_modify(usu.extra, '$.hierarchy.unity.name', 'Colégio Batista Betânia') 
+update usu set usu.extra = json_modify(usu.extra, '$.hierarchy.unity.name', 'Colégio Batista Betânia')
+  from auth_user usu 
+  where json_value(extra, '$.hierarchy.unity.name') = 'Colégio Batista Betania' 
