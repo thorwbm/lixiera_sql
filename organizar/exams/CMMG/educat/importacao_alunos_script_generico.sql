@@ -21,12 +21,12 @@
  select distinct 
         avaliacao_id, curso_id, apl.id_periodo,apl.dt_aplicacao,  
         instituicao_id, apl.id_disciplina, qtd_participante
-        - , CMM.id_avaliacao, cmm.ds_avaliacao, cmm.exa_id, apl.ds_aplicacao, apl.id_instituicao, apl.extra, apl.id_avaliacao as ava_id
+        -- , CMM.id_avaliacao, cmm.ds_avaliacao, cmm.exa_id, apl.ds_aplicacao, apl.id_instituicao, apl.extra, apl.id_avaliacao as ava_id
    from 
         VW_CMMG_PARAMENTRO_IMPORTACAO IMP JOIN VW_CMMG_AVALIACAO    CMM ON (imp.avaliacao_id = cmm.exa_id)
                                           JOIN TbAvaliacaoAplicacao apl ON (CMM.ID_AVALIACAO = apl.ID_AVALIACAO)
   WHERE 
-        apl.id_avaliacao = 367 AND 
+        apl.id_avaliacao = 381 AND 
         imp.curso_nome IS NOT NULL 
 
 
@@ -46,13 +46,13 @@
    --SELECT * FROM TbDisciplina WHERE id_disciplina in (41)
    --select * from tbperiodo 
 
-    declare @AVALIACAO_EXT_ID INT = 12
+    declare @AVALIACAO_EXT_ID INT = 23
     declare @ID_CURSO         int = 1
-    declare @ID_PERIODO       int = 22
-    declare @DATA_APLICACAO   datetime = '2020-06-15 14:00:00.000'
+    declare @ID_PERIODO       int = 20
+    declare @DATA_APLICACAO   datetime = '2020-09-22 17:00:00.000'
     declare @ID_INSTITUICAO   int = 7 
-    declare @ID_DISCIPLINA    int = 41
-    declare @NR_RESPONDENTES  int = 173
+    declare @ID_DISCIPLINA    int = 881
+    declare @NR_RESPONDENTES  int = 201
 
 declare @inicio datetime = getdate()
 declare @FINAL datetime 
@@ -87,6 +87,7 @@ SELECT DISTINCT
 INSERT INTO TbAvaliacaoAplicacao (id_avaliacao, ID_CURSO, ID_PERIODO, ID_DISCIPLINA, ID_STATUS, DT_APLICACAO,
                                   DURACAO, BL_HAS_ANALISE_TRI, ID_INSTITUICAO, NR_RESPONDENTES, 
 								  ds_aplicacao)
+
  SELECT DISTINCT  
          AVA.id_avaliacao, ID_CURSO = @ID_CURSO, ID_PERIODO = @ID_PERIODO , 
          ID_DISCIPLINA = @ID_DISCIPLINA, ID_STATUS = 3, DATA_APLICACAO = @DATA_APLICACAO,
@@ -167,9 +168,12 @@ SET @JSON_AUX = '{"hierarchy": {"class":{"value":"9999999","name":"M072S02B201T"
        UPDATE app SET app.EXTRA = JSON_MODIFY(@JSON_AUX, '$.hierarchy.class.name', ltrim(rtrim(reverse(left(reverse(ltrim(rtrim(ds_aplicacao))),charindex(' ',reverse(ltrim(rtrim(ds_aplicacao)))))))))
 --  select * 
 FROM TbAvaliacaoAplicacao app
-WHERE ds_aplicacao LIKE '%201t' AND extra IS  NULL
+WHERE id_avaliacao = 381 AND extra IS  NULL
 
 
 */
+
+--  select * from vw_aplicacao_resposta_usuario where id_avaliacao = 381
+
 
 

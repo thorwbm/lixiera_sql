@@ -1,5 +1,5 @@
   
-CREATE FUNCTION FN_GABARITO_ALUNO_AUX (@application_id int)  
+CREATE or alter FUNCTION FN_GABARITO_ALUNO_AUX (@application_id int)  
 RETURNS VARCHAR(1000)  
 BEGIN  
  declare @letra varchar(1)  

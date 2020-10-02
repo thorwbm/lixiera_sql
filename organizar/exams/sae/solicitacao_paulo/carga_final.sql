@@ -3,6 +3,8 @@ FROM tmp_aluno_gabarito WITH(NOLOCK)
 
 
 
+	CREATE INDEX IX_TMP_ALUNO_GABARITO__APPLICATION_ID   ON tmp_aluno_gabarito (application_id)
+	CREATE INDEX IX_TMP_ALUNO_GABARITO__APPLICATION_ID   ON tmp_aluno_gabarito (application_id)
 
 SELECT * FROM TMP_ALUNO_GABARITO 
 
@@ -11,16 +13,16 @@ SELECT * FROM TMP_ALUNO_GABARITO
 update tmp_aluno_gabarito set gabarito_aluno =   dbo.FN_GABARITO_ALUNO(application_id)
 where application_id = (SELECT APPLICATION_ID FROM )
 
-update tmp_aluno_gabarito set gabarito_aluno =   dbo.FN_GABARITO_ALUNO(application_id)
+update tmp_aluno_gabarito set gabarito_aluno = null    dbo.FN_GABARITO_ALUNO(application_id)
 
 
-
+select * FROM tmp_aluno_gabarito
 
 DECLARE @CONTADOR INT = 1 
 WHILE (@CONTADOR > 0)
 BEGIN
-		UPDATE tmp_aluno_gabarito  set gabarito_aluno =   dbo.FN_GABARITO_ALUNO_AUX(application_id)
-		where application_id IN  (SELECT TOP 10000 APPLICATION_ID FROM tmp_aluno_gabarito WHERE gabarito_aluno IS NULL)
+		UPDATE tmp_aluno_gabarito  set gabarito_aluno =   dbo.FN_GABARITO_ALUNO(application_id)
+		where application_id IN  (SELECT TOP 100 APPLICATION_ID FROM tmp_aluno_gabarito WHERE gabarito_aluno IS NULL)
 
 
 		SELECT @CONTADOR = COUNT(1) FROM  tmp_aluno_gabarito WHERE gabarito_aluno IS NULL
@@ -40,4 +42,5 @@ from tmp_aluno_gabarito  alu join tmp_exam_gabarito exa on (alu.exam_id = exa.ex
                              join exam_exam         exm on (exm.id = exa.exam_id)
 							 join exam_collection   col on (col.id = alu.collection_id)
 							 join auth_user         usu on (usu.id = alu.user_id)
-WHERE len(gabarito_exam) > 4
+WHERE --len(gabarito_exam) > 4 and 
+      exm.name like '%filosofia%' and json_value(usu.extra, '$.hierarchy.grade.name') like '4%'

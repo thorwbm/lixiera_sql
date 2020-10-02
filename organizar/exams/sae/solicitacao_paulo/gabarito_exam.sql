@@ -7,7 +7,7 @@ where APA.prova_nome like '%2%bi%' AND
 
 
 
-
+       drop table tmp_exam_gabarito
 	  select id as exam_id, dbo.FN_GABARITO_EXAME(id) as gabarito_exam 
 	  into tmp_exam_gabarito
 	  from exam_exam
@@ -17,7 +17,7 @@ where APA.prova_nome like '%2%bi%' AND
 	 into tmp_aluno_gabarito
 from application_application app WITH(NOLOCK) join exam_exam         exa WITH(NOLOCK) on (exa.id = app.exam_id)
                                               join exam_collection   col WITH(NOLOCK) on (col.id = exa.collection_id)								              
-where col.name like 'Desafio SAE%2°BI -%'
+where col.name like '%diagn%'
 
 
 

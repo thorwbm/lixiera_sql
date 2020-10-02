@@ -2,11 +2,12 @@
 drop table #tmp_excluir
 select application_application_id as application_id into #tmp_excluir
 --   select distinct grade_nome
+--   select distinct prova_nome, escola_nome, exame_nome, grade_nome 
 from VW_AGENDAMENTO_PROVA_ALUNO 
-where escola_nome = 'COLÉGIO UNINOVE' and
+where escola_nome = 'COLEGIO ALVORADA' and
       prova_nome like '%Diagnóstica 2/2020 -%' and 
-      prova_nome not like '%prospect%' and 
-	  grade_nome in (N'4º ano', N'5º ano', N'6º ano') 
+      --exame_nome like '%arte%' and 
+	  grade_nome in (N'4º ano', N'5º ano') 
 
 select * from application_answer where application_id in (select application_id from #tmp_excluir )
 

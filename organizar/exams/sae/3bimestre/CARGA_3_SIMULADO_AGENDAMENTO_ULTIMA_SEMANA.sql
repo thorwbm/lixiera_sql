@@ -2,7 +2,8 @@ select distinct serie from TMP_IMP_ESCOLA_AGENDAMENTO_ULTIMA_SEMANA where serie 
 select reverse( ltrim(rtrim(left(reverse(exc.name),charindex( '-',reverse(exc.name))-1)))),* 
 from exam_collection exc where exc.name like 'Desafio SAE % 3°BI%'
 
-select * from TMP_IMP_ESCOLA_AGENDAMENTO_ULTIMA_SEMANA where escola_nome = 'CENTRO CULTURAL MANILHA'
+select * from TMP_IMP_ESCOLA_BLOQUEADA where escola_nome = 'Centro Cultural Montessoriano'
+select * from TMP_IMP_ESCOLA_AGENDAMENTO_ULTIMA_SEMANA where escola_nome = 'Centro Cultural Montessoriano'
 
 drop table  #temp_carga
 
@@ -27,9 +28,8 @@ from exam_collection exc join TMP_IMP_ESCOLA_AGENDAMENTO_ULTIMA_SEMANA tmp on (e
 					                                          xxx.exam_id = exa.id)
 where charindex( '-',exc.name) > 0 AND 
       exc.name like 'Desafio SAE % 3°BI%' and 
-	 -- tmp.ESCOLA_NOME = 'Curso e Colégio Acesso' and 	  
+	  tmp.ESCOLA_NOME = 'Centro Cultural Montessoriano' and 	  
 	  --TMP.SERIE IN ('extensivo','extensivo mega','3ª série') AND 
-	  (json_value(usu.extra, '$.hierarchy.unity.value') = '6db64e812c6b1a6ede239eacf2eb48fa' and 
       XXX.id IS NULL  and
 	  BLK.ESCOLA_NOME IS NULL   
 
@@ -73,7 +73,7 @@ select distinct  ite.position, app.id as application_id, ite.item_id as item_id,
 where xxx.id is null 
 
 
- --commit
+ commit
 -- rollback 
 
 
