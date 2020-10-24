@@ -1,5 +1,5 @@
 -- use exams_cmmg
-
+-- commit
 /************************************************************************************
  *                          PASSOS 
  *  - ATUALIZAR A TABELA [TMPIMP_PROVAEXAM] - origem excel 
@@ -55,7 +55,7 @@ with cte_aluno_graducao as (
 --#################################################################################################################################################### 
 -- #### CARGA NA TABELA APPLICATION
 insert into application_application (exam_id, user_id, should_update_answers, created_at, updated_at, started_at, finished_at, timeout, forced_status)
-select --distinct 
+select distinct 
        exam_id = CAR.exam_id, [user_id] = CAR.[user_id], should_update_answers = CAR.should_update_answers,
        created_at = CAR.created_at , updated_at = CAR.updated_at,
        started_at = null, finished_at = null,timeout = null, forced_status = CAR.forced_status
@@ -76,7 +76,7 @@ select distinct
                               left join application_answer xxx on (APP.id = xxx.application_id and 
                                                                    EXI.item_id = xxx.item_id)
  where xxx.id is null AND        
-       APP.created_at = '2020-09-21 08:28:32'
+       APP.created_at = '2020-10-21 09:35:12'
     order by APP.id, EXI.[position]
 
 -----------------------------------------------------------------------------------------------------
@@ -107,7 +107,7 @@ begin tran
 								 join hierarchy_hierarchy           hgr on (hgr.name  collate database_default = eta.nome  collate database_default
 								                                            and hgr.type = 'grade')
         WHERE --USU.EXTRA IS NULL  and 
-		      aux.external_id = 381
+		      aux.external_id = 382
 
 ----------------------------------------------------------------------------------------------------
 -- #### ATUALIZAR O CAMPO EXTRA DO APPLICATION_APPLICATION 
@@ -130,10 +130,12 @@ UPDATE app SET app.extra =
 
 -- SELECT app.extra, *
   FROM #TMP_CARGA CAR JOIN APPLICATION_APPLICATION APP ON (APP.user_id = CAR.user_id AND CAR.exam_id = APP.exam_id)
-                      JOIN hierarchy_hierarchy     TUR ON (TUR.NAME = CAR.turma_nome AND TUR.type = 'class')
-                      JOIN hierarchy_hierarchy     gra ON (gra.NAME = CAR.periodo AND gra.type = 'grade')
-where car.external_id = 381
+                   left    JOIN hierarchy_hierarchy     TUR ON (TUR.NAME = CAR.turma_nome AND TUR.type = 'class')
+                    left  JOIN hierarchy_hierarchy     gra ON (gra.NAME = CAR.periodo AND gra.type = 'grade')
+where car.external_id = 382
 
+
+select * from #TMP_CARGA
 --#####################################################################################################
 DECLARE @JSON_AUX VARCHAR(MAX)
 SET @JSON_AUX = '{"hierarchy": {"unity":{"value":"CMMG","name":"Faculdade Ciências Médicas"},"discipline":{"value":"99999","name":"Não informado"},"grade":{"value":"999999","name":"Não informado"},"curso":{"value":"999999","name":"Não informado"}}}'
@@ -152,9 +154,10 @@ SET @JSON_AUX = '{"hierarchy": {"unity":{"value":"CMMG","name":"Faculdade Ciênci
 --SELECT *
 FROM exam_exam exa JOIN vw_educat_cmmg_curso_disciplina_periodo vw ON (exa.external_id = vw.id_avaliacao)
                    JOIN hierarchy_hierarchy     gra ON (gra.NAME = vw.periodo_nome AND gra.type = 'grade')
- WHERE id_avaliacao = 381
+ WHERE id_avaliacao = 382
 
 -----------------------------------------------------------------------------------------------------
 
 
 
+select * from application_application where id = 9601, 24

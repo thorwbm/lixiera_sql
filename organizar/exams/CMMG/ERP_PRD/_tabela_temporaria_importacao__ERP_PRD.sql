@@ -7,6 +7,7 @@
  )
 
 
+ -M073S02B202T-
 
 
 
@@ -21,15 +22,18 @@ SELECT rtrim(ltrim(curso_nome)) as curso, entidade = 'CMMG - Faculdade de Ciênci
        --'2º período' as periodo, 
 	   rtrim(ltrim(periodo_nome)) as periodo, 
 	   rtrim(ltrim(ds_avaliacao)) as prova,
-	   turma = rtrim(ltrim(reverse(left(reverse(ds_aplicacao),charindex('-',reverse(ds_aplicacao)) -1)))), 
+	   turma = ltrim(rtrim(rtrim(ltrim(reverse(left(reverse(ds_aplicacao),charindex('-',reverse(ds_aplicacao)) -1)))))), 
 	   rtrim(ltrim(disciplina_nome)) as disciplina, id_avaliacao as external_id
 into tmpimp_provaexam
 
 --select *
  FROM educat_cmmg..vw_aplicacao_curso_disciplina_periodo 
-where id_avaliacao = 381
+where id_avaliacao = 382
 
-select * from tmpimp_provaexam
+select *, '-' + turma + '-' from tmpimp_provaexam
+
+update tmpimp_provaexam set turma = 'M073S02A202T'
+where turma like '%M073S02A202T%'
 
 
 	select * from academico_turma tur where nome = 'M073S02A202T'

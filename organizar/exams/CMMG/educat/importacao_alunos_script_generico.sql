@@ -26,7 +26,7 @@
         VW_CMMG_PARAMENTRO_IMPORTACAO IMP JOIN VW_CMMG_AVALIACAO    CMM ON (imp.avaliacao_id = cmm.exa_id)
                                           JOIN TbAvaliacaoAplicacao apl ON (CMM.ID_AVALIACAO = apl.ID_AVALIACAO)
   WHERE 
-        apl.id_avaliacao = 381 AND 
+        apl.id_avaliacao = 382 AND 
         imp.curso_nome IS NOT NULL 
 
 
@@ -46,12 +46,23 @@
    --SELECT * FROM TbDisciplina WHERE id_disciplina in (41)
    --select * from tbperiodo 
 
-    declare @AVALIACAO_EXT_ID INT = 23
+/*
+BEGIN TRAN 
+DECLARE @JSON_AUX VARCHAR(MAX)
+SET @JSON_AUX = '{"hierarchy": {"class":{"value":"9999999","name":"M072S02B201T"}}}'
+  
+       UPDATE app SET app.EXTRA = JSON_MODIFY(@JSON_AUX, '$.hierarchy.class.name', ltrim(rtrim(reverse(left(reverse(ltrim(rtrim(ds_aplicacao))),charindex(' ',reverse(ltrim(rtrim(ds_aplicacao)))))))))
+--  select * 
+FROM TbAvaliacaoAplicacao app
+WHERE id_avaliacao = 381 AND extra IS  NULL
+*/
+
+    declare @AVALIACAO_EXT_ID INT = 24
     declare @ID_CURSO         int = 1
-    declare @ID_PERIODO       int = 20
-    declare @DATA_APLICACAO   datetime = '2020-09-22 17:00:00.000'
+    declare @ID_PERIODO       int = 19
+    declare @DATA_APLICACAO   datetime = '2020-10-14 20:00:00.000'
     declare @ID_INSTITUICAO   int = 7 
-    declare @ID_DISCIPLINA    int = 881
+    declare @ID_DISCIPLINA    int = 35
     declare @NR_RESPONDENTES  int = 201
 
 declare @inicio datetime = getdate()
@@ -160,18 +171,7 @@ INSERT INTO TbAvaliacaoAplicacao (id_avaliacao, ID_CURSO, ID_PERIODO, ID_DISCIPL
 
 --select * from tbavaliacao 
 
-/*
-BEGIN TRAN 
-DECLARE @JSON_AUX VARCHAR(MAX)
-SET @JSON_AUX = '{"hierarchy": {"class":{"value":"9999999","name":"M072S02B201T"}}}'
-  
-       UPDATE app SET app.EXTRA = JSON_MODIFY(@JSON_AUX, '$.hierarchy.class.name', ltrim(rtrim(reverse(left(reverse(ltrim(rtrim(ds_aplicacao))),charindex(' ',reverse(ltrim(rtrim(ds_aplicacao)))))))))
---  select * 
-FROM TbAvaliacaoAplicacao app
-WHERE id_avaliacao = 381 AND extra IS  NULL
 
-
-*/
 
 --  select * from vw_aplicacao_resposta_usuario where id_avaliacao = 381
 

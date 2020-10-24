@@ -77,12 +77,16 @@ from educat_didatti_v2..vw_exportacao_avaliacao_139 ORDER BY item_id
                        CARGA ITEM ALTERNATIVA
 ********************************************************************************/
 INSERT INTO TbItemAlternativa (id_item_conteudo, ds_item_alternativa, DS_JUSTIFICATIVA, BL_RESPOSTA)
-SELECT DISTINCT CON.id_item_conteudo, 
+SELECT  CON.id_item_conteudo, 
        ds_item_alternativa = IMP.alternativa_desc, 
 	   DS_JUSTIFICATIVA = IMP.alternativa_justificativa,
 	   BL_RESPOSTA      = IMP.alternativa_gabarito
   FROM educat_didatti_v2..vw_exportacao_avaliacao_139 IMP JOIN TBITEM         ITE ON (IMP.ITEM_ID = ITE.nr_aula)
                                                           JOIN TBITEMCONTEUDO CON ON (ITE.ID_ITEM = CON.id_item)
+
+--where imp.item_id = 5138
+		  order by item_id , alternativa_posicao
+
 
 /*******************************************************************************
                        CARGA ITEM ALTERNATIVA

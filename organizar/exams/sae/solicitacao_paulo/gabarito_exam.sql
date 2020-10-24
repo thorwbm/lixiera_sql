@@ -14,7 +14,7 @@ where APA.prova_nome like '%2%bi%' AND
 
 	  drop table tmp_aluno_gabarito
 	 select app.user_id, app.exam_id, EXA.collection_id, app.id as application_id, gabarito_aluno = replicate('x', 100)
-	 into tmp_aluno_gabarito
+	 into tmp_aluno_gabarito_novo
 from application_application app WITH(NOLOCK) join exam_exam         exa WITH(NOLOCK) on (exa.id = app.exam_id)
                                               join exam_collection   col WITH(NOLOCK) on (col.id = exa.collection_id)								              
 where col.name like '%diagn%'

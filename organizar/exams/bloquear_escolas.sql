@@ -1,15 +1,17 @@
 
+select * from hierarchy_hierarchy where value = 'ef1d8f0759bfae1c94f1dd51bee311de'
+
 drop table #tmp_excluir
 select application_application_id as application_id into #tmp_excluir
 --   select distinct grade_nome
 --   select distinct prova_nome, escola_nome, exame_nome, grade_nome 
 from VW_AGENDAMENTO_PROVA_ALUNO 
-where escola_nome = 'COLEGIO ALVORADA' and
-      prova_nome like '%Diagnóstica 2/2020 -%' and 
+where escola_nome = 'LIMAOZINHO' and
+      prova_nome like '%3°BI -%' and 
       --exame_nome like '%arte%' and 
-	  grade_nome in (N'4º ano', N'5º ano') 
+	  grade_nome in (N'6º ano', N'7º ano') 
 
-select * from application_answer where application_id in (select application_id from #tmp_excluir )
+select * from application_answer where application_id in (select application_id from #tmp_excluir ) and alternative_id is not null 
 
 begin tran
 insert into application_ANSWER_bloqueada
