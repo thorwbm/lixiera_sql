@@ -8,12 +8,12 @@
  ************************************************************************************/
  -- rollback 
  -- select * from erp_prd..tmpimp_provaexam
- -- drop table #TMP_CARGA
+
+
+ drop table #TMP_CARGA
 
 DECLARE @DATAEXECUCAO DATETIME      
 SET @DATAEXECUCAO = CAST( CONVERT(VARCHAR(19),GETDATE(),120) AS DATETIME)
---begin tran; 
-
 ;
 
 with cte_aluno_graducao as (
@@ -32,9 +32,6 @@ with cte_aluno_graducao as (
                                           join erp_prd..tmpimp_provaexam               pro on (tur.nome = pro.turma      collate database_default and 
                                                                                                dis.nome = pro.disciplina collate database_default and 
                                                                                                cur.nome = pro.curso      collate database_default)
-            --where tda.status_matricula_disciplina_id = 1  
-			
-
 )
 
 -- DROP TABLE #TMP_CARGA
@@ -50,7 +47,6 @@ with cte_aluno_graducao as (
                               join exam_exam                    pro on (pro.external_id = fel.external_id)
                               left join application_application xxx on (xxx.exam_id = pro.id and
                                                                         xxx.[user_id] = usu.id)
-    where fel.aluno_email not in ('','laa@sgcomex.com.br')
 
 --#################################################################################################################################################### 
 -- #### CARGA NA TABELA APPLICATION
@@ -66,7 +62,7 @@ WHERE XXX.ID IS NULL
 
 --------------------------------------------------------------------------------
 -- #### CARGA NA TABELA ANSWER
----   insert into application_answer ([position], application_id, item_id, created_at, updated_at, seconds)
+   insert into application_answer ([position], application_id, item_id, created_at, updated_at, seconds)
 select distinct 
        EXI.position, application_id = APP.id, EXI.item_id, created_at = APP.created_at, updated_at = APP.created_at, seconds = 0 
   from 
@@ -76,13 +72,13 @@ select distinct
                               left join application_answer xxx on (APP.id = xxx.application_id and 
                                                                    EXI.item_id = xxx.item_id)
  where xxx.id is null AND        
-       APP.created_at = '2020-10-21 09:35:12'
+       APP.created_at in (select top 1 created_at from #TMP_CARGA)
     order by APP.id, EXI.[position]
 
 -----------------------------------------------------------------------------------------------------
 -- ### ATUALIZAR CAMPO EXTRA DO AUTH_USER 
 -- ### CORRECAO DO CAMPO EXTRA 
-begin tran 
+--begin tran 
 
        UPDATE USU SET USU.EXTRA = JSON_MODIFY( JSON_MODIFY(
 										  JSON_MODIFY(
@@ -95,19 +91,15 @@ begin tran
                                          '$.hierarchy.class.value', isnull(htu.value,'Não informado') collate database_default),
                                     '$.hierarchy.class.name', isnull(htu.name,'Não informado') collate database_default)
    
-			-- select distinct aux.* 
+			-- select distinct aux.* , usu.extra
               from #TMP_CARGA aux join auth_user                    usu on (usu.public_identifier = aux.aluno_ra)
                                  join erp_prd..vw_acd_turma_detalhe tur on (tur.turma_id = aux.TURMA_ID)
 								 join hierarchy_hierarchy           htu on (htu.name  collate database_default = aux.turma_nome  collate database_default
 								                                            and htu.type = 'class')
                                  join erp_prd..curriculos_grade     grd on (grd.id = tur.grade_id)      
-                                 JOIN erp_prd..academico_etapa  eta on (
-                                                                            eta.nome =  aux.periodo collate database_default)
-							                  
+                                 JOIN erp_prd..academico_etapa  eta on (eta.nome =  aux.periodo collate database_default)							                  
 								 join hierarchy_hierarchy           hgr on (hgr.name  collate database_default = eta.nome  collate database_default
 								                                            and hgr.type = 'grade')
-        WHERE --USU.EXTRA IS NULL  and 
-		      aux.external_id = 382
 
 ----------------------------------------------------------------------------------------------------
 -- #### ATUALIZAR O CAMPO EXTRA DO APPLICATION_APPLICATION 
@@ -128,36 +120,40 @@ UPDATE app SET app.extra =
 					     '$.hierarchy.curso.name', car.curso_nome),
 			         '$.hierarchy.curso.value', car.curso_id)
 
--- SELECT app.extra, *
   FROM #TMP_CARGA CAR JOIN APPLICATION_APPLICATION APP ON (APP.user_id = CAR.user_id AND CAR.exam_id = APP.exam_id)
                    left    JOIN hierarchy_hierarchy     TUR ON (TUR.NAME = CAR.turma_nome AND TUR.type = 'class')
                     left  JOIN hierarchy_hierarchy     gra ON (gra.NAME = CAR.periodo AND gra.type = 'grade')
-where car.external_id = 382
 
-
-select * from #TMP_CARGA
 --#####################################################################################################
-DECLARE @JSON_AUX VARCHAR(MAX)
-SET @JSON_AUX = '{"hierarchy": {"unity":{"value":"CMMG","name":"Faculdade Ciências Médicas"},"discipline":{"value":"99999","name":"Não informado"},"grade":{"value":"999999","name":"Não informado"},"curso":{"value":"999999","name":"Não informado"}}}'
+DECLARE @JSON_AUX_EXA VARCHAR(MAX)
+SET @JSON_AUX_EXA = '{"hierarchy": {"unity":{"value":"CMMG","name":"Faculdade Ciências Médicas"},"discipline":{"value":"99999","name":"Não informado"},"grade":{"value":"999999","name":"Não informado"},"curso":{"value":"999999","name":"Não informado"}}}'
   
        UPDATE exa SET exa.EXTRA = JSON_MODIFY(
                                       JSON_MODIFY(
 											JSON_MODIFY(
 												JSON_MODIFY(
 												  JSON_MODIFY(
-													  JSON_MODIFY(@JSON_AUX, '$.hierarchy.discipline.value', vw.disciplina_id), 
+													  JSON_MODIFY(@JSON_AUX_EXA, '$.hierarchy.discipline.value', vw.disciplina_id), 
 													  '$.hierarchy.discipline.name', vw.disciplina_nome),
 												  '$.hierarchy.grade.value', gra.value),
 											  '$.hierarchy.grade.name', gra.name),
 											'$.hierarchy.curso.value', vw.curso_id),
 										'$.hierarchy.curso.name', vw.curso_nome)
---SELECT *
 FROM exam_exam exa JOIN vw_educat_cmmg_curso_disciplina_periodo vw ON (exa.external_id = vw.id_avaliacao)
                    JOIN hierarchy_hierarchy     gra ON (gra.NAME = vw.periodo_nome AND gra.type = 'grade')
- WHERE id_avaliacao = 382
+ WHERE id_avaliacao  in (select top 1 external_id from #TMP_CARGA)
 
 -----------------------------------------------------------------------------------------------------
+select usu.id , usu.name as aluno_nome from auth_user usu 
+where usu.id in (select user_id   --,  count(1) 
+                 from #TMP_CARGA
+                 group by user_id
+                 having count(1) > 1)
+
+-----------------------------------------------------------------------------------------------------
+select top 1 external_id from #TMP_CARGA
 
 
 
-select * from application_application where id = 9601, 24
+select *  from #TMP_CARGA 
+ 

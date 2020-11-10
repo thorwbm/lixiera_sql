@@ -1,17 +1,11 @@
  USE ERP_PRD; 
- with   cte_imp_turmas as (
-   select curso = 'medicina', entidade = 'CMMG - Faculdade de Ciências Médicas Medicina', periodo = '1º Período', prova = 'Avaliação de Anatomia Humana I', turma = 'M074S01A202T', disciplina = 'Anatomia Humana I', external_id = 380 union
-   select curso = 'medicina', entidade = 'CMMG - Faculdade de Ciências Médicas Medicina', periodo = '1º Período', prova = 'Avaliação de Anatomia Humana I', turma = 'M074S01B202T', disciplina = 'Anatomia Humana I', external_id = 380 union
-   select curso = 'medicina', entidade = 'CMMG - Faculdade de Ciências Médicas Medicina', periodo = '1º Período', prova = 'Avaliação de Anatomia Humana I', turma = 'M074S01C202T', disciplina = 'Anatomia Humana I', external_id = 380 union
-   select curso = 'medicina', entidade = 'CMMG - Faculdade de Ciências Médicas Medicina', periodo = '1º Período', prova = 'Avaliação de Anatomia Humana I', turma = 'M074S01D202T', disciplina = 'Anatomia Humana I', external_id = 380        
- )
+ --with   cte_imp_turmas as (
+ --  select curso = 'medicina', entidade = 'CMMG - Faculdade de Ciências Médicas Medicina', periodo = '1º Período', prova = 'Avaliação de Anatomia Humana I', turma = 'M074S01A202T', disciplina = 'Anatomia Humana I', external_id = 380 union
+ --  select curso = 'medicina', entidade = 'CMMG - Faculdade de Ciências Médicas Medicina', periodo = '1º Período', prova = 'Avaliação de Anatomia Humana I', turma = 'M074S01B202T', disciplina = 'Anatomia Humana I', external_id = 380 union
+ --  select curso = 'medicina', entidade = 'CMMG - Faculdade de Ciências Médicas Medicina', periodo = '1º Período', prova = 'Avaliação de Anatomia Humana I', turma = 'M074S01C202T', disciplina = 'Anatomia Humana I', external_id = 380 union
+ --  select curso = 'medicina', entidade = 'CMMG - Faculdade de Ciências Médicas Medicina', periodo = '1º Período', prova = 'Avaliação de Anatomia Humana I', turma = 'M074S01D202T', disciplina = 'Anatomia Humana I', external_id = 380        
+ --)
 
-
- -M073S02B202T-
-
-
-
- select * from curriculos_grade
 
  drop table tmpimp_provaexam
 --select * into tmpimp_provaexam 
@@ -28,16 +22,14 @@ into tmpimp_provaexam
 
 --select *
  FROM educat_cmmg..vw_aplicacao_curso_disciplina_periodo 
-where id_avaliacao = 382
+where id_avaliacao = 390
 
 select *, '-' + turma + '-' from tmpimp_provaexam
 
-update tmpimp_provaexam set turma = 'M073S02A202T'
-where turma like '%M073S02A202T%'
+--   update tmpimp_provaexam set turma = 'M073S02A202T'  where turma like '%M073S02A202T%'
 
 
-	select * from academico_turma tur where nome = 'M073S02A202T'
-	select * from curriculos_grade where id = 6986
+--	select * from academico_turma tur where nome = 'M073S02A202T'  	select * from curriculos_grade where id = 6986
   --select curso = 'medicina', entidade = 'CMMG - Faculdade de Ciências Médicas Medicina', periodo = '1º Período', prova = 'Avaliação de Metodologia Científica', turma = 'M073S01A201T', disciplina = 'Metodologia Cientifica', external_id = 375 union
   --select curso = 'medicina', entidade = 'CMMG - Faculdade de Ciências Médicas Medicina', periodo = '1º Período', prova = 'Avaliação de Metodologia Científica', turma = 'M073S01B201T', disciplina = 'Metodologia Cientifica', external_id = 375 union
   --select curso = 'medicina', entidade = 'CMMG - Faculdade de Ciências Médicas Medicina', periodo = '1º Período', prova = 'Avaliação de Metodologia Científica', turma = 'M073S01C201T', disciplina = 'Metodologia Cientifica', external_id = 375 union

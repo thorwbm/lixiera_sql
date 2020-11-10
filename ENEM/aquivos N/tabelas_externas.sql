@@ -1,12 +1,11 @@
 
-CREATE EXTERNAL TABLE [dbo].[correcoes_correcao]
+CREATE EXTERNAL TABLE [dbo].[EXT_CORRECOES_CORRECAO]
 (
 	[id] [int] NOT NULL,
 	[token_auxiliar1] [nvarchar](10) NULL,
 	[token_auxiliar2] [nvarchar](10) NULL,
 	[data_inicio] [datetime2](7) NULL,
 	[data_termino] [datetime2](7) NULL,
-	[correcao] [nvarchar](max) NULL,
 	[link_imagem_recortada] [nvarchar](255) NOT NULL,
 	[link_imagem_original] [nvarchar](255) NULL,
 	[nota_final] [numeric](10, 2) NULL,
@@ -21,21 +20,18 @@ CREATE EXTERNAL TABLE [dbo].[correcoes_correcao]
 	[nota_competencia4] [numeric](10, 2) NULL,
 	[nota_competencia5] [numeric](10, 2) NULL,
 	[tempo_em_correcao] [int] NOT NULL,
-	[angulo_imagem] [int] NOT NULL,
-	[atualizado_por] [int] NULL,
 	[id_auxiliar1] [int] NULL,
 	[id_auxiliar2] [int] NULL,
 	[id_correcao_situacao] [int] NULL,
 	[id_corretor] [int] NULL,
 	[id_projeto] [int] NULL,
-	[co_barra_redacao] [nvarchar](50) NOT NULL,
 	[id_status] [int] NOT NULL,
 	[tipo_auditoria_id] [int] NULL,
 	[id_tipo_correcao] [int] NOT NULL,
 	[redacao_id] [int] NOT NULL
 )
 WITH (
-DATA_SOURCE = [DTS_Correcao])
+DATA_SOURCE = [DTS_Correcao],SCHEMA_NAME = N'dbo',OBJECT_NAME = N'CORRECOES_CORRECAO')
 GO
 
 
@@ -43,7 +39,7 @@ GO
 
 
 
-CREATE EXTERNAL TABLE [dbo].[correcoes_redacao]
+CREATE EXTERNAL TABLE [dbo].[EXT_CORRECOES_REDACAO]
 (
 	[id] [int] NOT NULL,
 	[co_barra_redacao] [nvarchar](50) NOT NULL,
@@ -71,7 +67,7 @@ CREATE EXTERNAL TABLE [dbo].[correcoes_redacao]
 	[faixa_plano_amostral] [nvarchar](100) NULL
 )
 WITH (
-DATA_SOURCE = [DTS_Correcao])
+DATA_SOURCE = [DTS_Correcao],SCHEMA_NAME = N'dbo',OBJECT_NAME = N'correcoes_redacao')
 GO
 
 
@@ -83,46 +79,24 @@ SET QUOTED_IDENTIFIER ON
 GO
 
 
-CREATE EXTERNAL TABLE [dbo].[correcoes_analise]
+CREATE EXTERNAL TABLE [dbo].[EXT_CORRECOES_ANALISE]
 (
 	[id] [int] NOT NULL,
 	[data_inicio_A] [datetime2](7) NOT NULL,
 	[data_inicio_B] [datetime2](7) NULL,
 	[data_termino_A] [datetime2](7) NOT NULL,
 	[data_termino_B] [datetime2](7) NULL,
-	[link_imagem_recortada] [nvarchar](255) NULL,
-	[link_imagem_original] [nvarchar](255) NULL,
 	[nota_final_A] [numeric](10, 2) NOT NULL,
 	[nota_final_B] [numeric](10, 2) NULL,
 	[situacao_nota_final] [int] NULL,
-	[competencia1_A] [int] NULL,
-	[competencia1_B] [int] NULL,
-	[competencia2_A] [int] NULL,
-	[competencia2_B] [int] NULL,
-	[competencia3_A] [int] NULL,
-	[competencia3_B] [int] NULL,
-	[competencia4_A] [int] NULL,
-	[competencia4_B] [int] NULL,
-	[competencia5_A] [int] NULL,
-	[competencia5_B] [int] NULL,
-	[nota_competencia1_A] [numeric](10, 2) NULL,
-	[nota_competencia1_B] [numeric](10, 2) NULL,
 	[diferenca_competencia1] [numeric](10, 2) NULL,
 	[situacao_competencia1] [int] NULL,
-	[nota_competencia2_A] [numeric](10, 2) NULL,
-	[nota_competencia2_B] [numeric](10, 2) NULL,
 	[diferenca_competencia2] [numeric](10, 2) NULL,
 	[situacao_competencia2] [int] NULL,
-	[nota_competencia3_A] [numeric](10, 2) NULL,
-	[nota_competencia3_B] [numeric](10, 2) NULL,
 	[diferenca_competencia3] [numeric](10, 2) NULL,
 	[situacao_competencia3] [int] NULL,
-	[nota_competencia4_A] [numeric](10, 2) NULL,
-	[nota_competencia4_B] [numeric](10, 2) NULL,
 	[diferenca_competencia4] [numeric](10, 2) NULL,
 	[situacao_competencia4] [int] NULL,
-	[nota_competencia5_A] [numeric](10, 2) NULL,
-	[nota_competencia5_B] [numeric](10, 2) NULL,
 	[diferenca_competencia5] [numeric](10, 2) NULL,
 	[situacao_competencia5] [int] NULL,
 	[diferenca_nota_final] [numeric](10, 2) NULL,
@@ -131,8 +105,6 @@ CREATE EXTERNAL TABLE [dbo].[correcoes_analise]
 	[id_auxiliar1_B] [int] NULL,
 	[id_auxiliar2_B] [int] NULL,
 	[diferenca_situacao] [int] NULL,
-	[id_status_A] [int] NOT NULL,
-	[id_status_B] [int] NULL,
 	[id_tipo_correcao_A] [int] NOT NULL,
 	[id_tipo_correcao_B] [int] NULL,
 	[conclusao_analise] [int] NOT NULL,
@@ -147,20 +119,17 @@ CREATE EXTERNAL TABLE [dbo].[correcoes_analise]
 	[id_corretor_A] [int] NOT NULL,
 	[id_corretor_B] [int] NULL,
 	[id_projeto] [int] NOT NULL,
-	[co_barra_redacao] [nvarchar](50) NOT NULL,
 	[redacao_id] [int] NOT NULL,
 	[criado_em] [datetime2](7) NOT NULL
 )
 WITH (
-DATA_SOURCE = [DTS_Correcao])
+DATA_SOURCE = [DTS_Correcao],SCHEMA_NAME = N'dbo',OBJECT_NAME = N'correcoes_analise')
 GO
 
-CREATE EXTERNAL TABLE [dbo].[projeto_projeto]
+CREATE EXTERNAL TABLE [dbo].[EXT_PROJETO_PROJETO]
 (	[id] [int]  NOT NULL,
 	[descricao] [nvarchar](255) NOT NULL,
 	[max_correcoes_dia] [int] NOT NULL,
-	[titulo] [nvarchar](10) NOT NULL,
-	[subtitulo] [nvarchar](50) NOT NULL,
 	[fila_prioritaria] [int] NOT NULL,
 	[fila_supervisor] [int] NOT NULL,
 	[limite_nota_final] [numeric](10, 2) NOT NULL,
@@ -179,11 +148,11 @@ CREATE EXTERNAL TABLE [dbo].[projeto_projeto]
 
 )
 WITH (
-DATA_SOURCE = [DTS_Correcao])
+DATA_SOURCE = [DTS_Correcao],SCHEMA_NAME = N'dbo',OBJECT_NAME = N'projeto_projeto')
 GO
 
 --######################################################
-CREATE EXTERNAL TABLE[dbo].[correcoes_corretor](
+CREATE EXTERNAL TABLE[dbo].[EXT_CORRECOES_CORRETOR](
 	[id] [int] NOT NULL,
 	[max_correcoes_dia] [int] NOT NULL,
 	[pode_corrigir_1] [bit] NOT NULL,
@@ -191,7 +160,6 @@ CREATE EXTERNAL TABLE[dbo].[correcoes_corretor](
 	[pode_corrigir_3] [bit] NOT NULL,
 	[nota_corretor] [numeric](10, 2) NULL,
 	[tipo_cota] [nvarchar](1) NOT NULL,
-	[atualizado_por] [int] NULL,
 	[id_grupo] [int] NULL,
 	[status_id] [int] NOT NULL,
 	[dsp] [numeric](4, 2) NULL,
@@ -203,18 +171,15 @@ CREATE EXTERNAL TABLE[dbo].[correcoes_corretor](
 	[recapacitacao_habilitada_em] [datetime2](7) NULL
 )
 WITH (
-DATA_SOURCE = [DTS_Correcao])
+DATA_SOURCE = [DTS_Correcao],SCHEMA_NAME = N'dbo',OBJECT_NAME = N'correcoes_corretor')
 GO
 
 
 
-CREATE EXTERNAL TABLE  [dbo].[auth_user](
+CREATE EXTERNAL TABLE  [dbo].[EXT_AUTH_USER](
 	[id] [int]  NOT NULL,
-	[password] [nvarchar](128) NOT NULL,
-	[last_login] [datetime2](7) NULL,
 	[is_superuser] [bit] NOT NULL,
 	[username] [nvarchar](150) NOT NULL,
-	[first_name] [nvarchar](30) NOT NULL,
 	[last_name] [nvarchar](150) NOT NULL,
 	[email] [nvarchar](254) NOT NULL,
 	[is_staff] [bit] NOT NULL,
@@ -222,7 +187,7 @@ CREATE EXTERNAL TABLE  [dbo].[auth_user](
 	[date_joined] [datetime2](7) NOT NULL
 )
 WITH (
-DATA_SOURCE = [DTS_Correcao])
+DATA_SOURCE = [DTS_Correcao],SCHEMA_NAME = N'dbo',OBJECT_NAME = N'auth_user')
 GO
 
 
@@ -234,7 +199,7 @@ SET QUOTED_IDENTIFIER ON
 GO
 
 
-CREATE EXTERNAL TABLE [dbo].INEP_N02
+CREATE EXTERNAL TABLE [dbo].[EXT_INEP_N02]
 (
 	[CO_PROJETO] [nvarchar](255) NULL,
 	[TP_ORIGEM] [nvarchar](255) NULL,
@@ -244,60 +209,27 @@ CREATE EXTERNAL TABLE [dbo].INEP_N02
 	[NU_CPF] [nvarchar](255) NULL,
 	[NU_RG] [nvarchar](255) NULL,
 	[DT_NASCIMENTO] [nvarchar](255) NULL,
-	[TP_LINGUA_ESTRANGEIRA] [nvarchar](255) NULL,
-	[NO_LINGUA_ESTRANGEIRA] [nvarchar](255) NULL,
-	[CO_ATENDIMENTO_LISTA_PRESENCA] [nvarchar](255) NULL,
-	[ID_KIT_PROVA] [nvarchar](255) NULL,
-	[CO_COORDENACAO] [nvarchar](255) NULL,
 	[SG_UF_PROVA] [nvarchar](255) NULL,
 	[CO_MUNICIPIO_PROVA] [nvarchar](255) NULL,
 	[NO_MUNICIPIO_PROVA] [nvarchar](255) NULL,
-	[CO_LOCAL] [nvarchar](255) NULL,
-	[NO_LOCAL_PROVA] [nvarchar](255) NULL,
-	[CO_BLOCO] [nvarchar](255) NULL,
-	[NO_BLOCO] [nvarchar](255) NULL,
-	[NO_ANDAR] [nvarchar](255) NULL,
-	[NO_SALA] [nvarchar](255) NULL,
-	[NO_SALA_VIRTUAL] [nvarchar](255) NULL,
-	[NU_SEQUENCIAL] [nvarchar](255) NULL,
-	[NU_SEQ_ENVELOPE] [nvarchar](255) NULL,
-	[NU_TOTAL_ENVELOPE] [nvarchar](255) NULL,
-	[CO_BARRA_CONTRACAPA_DIA1] [nvarchar](255) NULL,
-	[CO_BARRA_CONTRACAPA_DIA2] [nvarchar](255) NULL,
-	[CO_BARRA_RESPOSTA_DIA1] [nvarchar](255) NULL,
-	[CO_BARRA_RESPOSTA_DIA2] [nvarchar](255) NULL,
-	[CO_BARRA_REDACAO] [nvarchar](255) NULL,
-	[CO_BARRA_LISTAPRESENCA_DIA1] [nvarchar](255) NULL,
-	[CO_BARRA_LISTAPRESENCA_DIA2] [nvarchar](255) NULL,
-	[CO_BARRA_RASCUNHO] [nvarchar](255) NULL,
-	[CO_BARRA_QSE] [nvarchar](255) NULL,
-	[CO_BARRA_BIOMETRIA_DIA1] [nvarchar](255) NULL,
-	[CO_BARRA_BIOMETRIA_DIA2] [nvarchar](255) NULL,
-	[CO_BARRA_PACOTE_DIA1] [nvarchar](255) NULL,
-	[CO_BARRA_PACOTE_DIA2] [nvarchar](255) NULL,
-	[CO_JUSTIFICATIVA] [nvarchar](255) NULL,
-	[TP_IMPRIMIR] [nvarchar](255) NULL,
-	[NU_DIA_PROVA] [nvarchar](255) NULL,
-	[IN_SABATISTA] [nvarchar](255) NULL,
-	[IN_ATENDIMENTO_ESPECIFICO] [nvarchar](255) NULL,
-	[IN_ATENDIMENTO_ESPECIALIZADO] [nvarchar](255) NULL,
-	[IN_RECURSO] [nvarchar](255) NULL,
-	[IN_TEMPO_ADICIONAL] [nvarchar](255) NULL,
-	[TP_ENSALAMENTO] [nvarchar](255) NULL,
-	[DT_APLICACAO_DIA1] [nvarchar](255) NULL,
-	[DT_APLICACAO_DIA2] [nvarchar](255) NULL,
-	[NU_PARTICIPANTES] [nvarchar](255) NULL,
-	[NU_PROVAS] [nvarchar](255) NULL,
-	[ID_MALOTE_DIA1] [nvarchar](255) NULL,
-	[ID_MALOTE_DIA2] [nvarchar](255) NULL,
-	[NU_CDL] [nvarchar](255) NULL,
-	[IN_RESERVA] [nvarchar](255) NULL,
-	[NO_ARQUIVO_REFERENCIA] [nvarchar](255) NULL
-
+	[CO_BARRA_REDACAO] [nvarchar](255) NULL
 )
-WITH (
-DATA_SOURCE = [DTS_Correcao])
+WITH (DATA_SOURCE = [DTS_Correcao],SCHEMA_NAME = N'dbo',OBJECT_NAME = N'inep_n02_local')
 GO
+
+
+CREATE EXTERNAL TABLE [dbo].[EXT_CORRECOES_SITUACAO]
+(
+	[id] [int] NOT NULL,
+	[descricao] [nvarchar](50) NOT NULL,
+	[sigla] [nvarchar](10) NULL
+)
+WITH (DATA_SOURCE = [DTS_Correcao],SCHEMA_NAME = N'dbo',OBJECT_NAME = N'correcoes_situacao')
+GO
+
+
+
+
 
 
 
@@ -308,7 +240,7 @@ GO
 
 
 --###########################################
-
+/*
 CREATE EXTERNAL TABLE [dbo].[XXXXXX]
 (	
 )
@@ -316,4 +248,4 @@ WITH (
 DATA_SOURCE = [DTS_Correcao])
 GO
 
-
+*/
